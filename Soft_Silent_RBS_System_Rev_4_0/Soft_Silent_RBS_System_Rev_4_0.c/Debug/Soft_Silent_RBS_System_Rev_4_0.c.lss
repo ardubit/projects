@@ -1,0 +1,659 @@
+
+Soft_Silent_RBS_System_Rev_4_0.c.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         000002b6  00000000  00000000  00000074  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .bss          00000006  00800060  00800060  0000032a  2**0
+                  ALLOC
+  2 .comment      00000030  00000000  00000000  0000032a  2**0
+                  CONTENTS, READONLY
+  3 .debug_aranges 00000088  00000000  00000000  0000035a  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_info   000005c8  00000000  00000000  000003e2  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_abbrev 00000204  00000000  00000000  000009aa  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_line   00000338  00000000  00000000  00000bae  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_frame  00000110  00000000  00000000  00000ee8  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_str    000002de  00000000  00000000  00000ff8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_loc    000001ba  00000000  00000000  000012d6  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_ranges 00000078  00000000  00000000  00001490  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	09 c0       	rjmp	.+18     	; 0x14 <__ctors_end>
+   2:	16 c0       	rjmp	.+44     	; 0x30 <__bad_interrupt>
+   4:	15 c0       	rjmp	.+42     	; 0x30 <__bad_interrupt>
+   6:	14 c0       	rjmp	.+40     	; 0x30 <__bad_interrupt>
+   8:	13 c0       	rjmp	.+38     	; 0x30 <__bad_interrupt>
+   a:	12 c0       	rjmp	.+36     	; 0x30 <__bad_interrupt>
+   c:	24 c0       	rjmp	.+72     	; 0x56 <__vector_6>
+   e:	10 c0       	rjmp	.+32     	; 0x30 <__bad_interrupt>
+  10:	0f c0       	rjmp	.+30     	; 0x30 <__bad_interrupt>
+  12:	0e c0       	rjmp	.+28     	; 0x30 <__bad_interrupt>
+
+00000014 <__ctors_end>:
+  14:	11 24       	eor	r1, r1
+  16:	1f be       	out	0x3f, r1	; 63
+  18:	cf e9       	ldi	r28, 0x9F	; 159
+  1a:	cd bf       	out	0x3d, r28	; 61
+
+0000001c <__do_clear_bss>:
+  1c:	20 e0       	ldi	r18, 0x00	; 0
+  1e:	a0 e6       	ldi	r26, 0x60	; 96
+  20:	b0 e0       	ldi	r27, 0x00	; 0
+  22:	01 c0       	rjmp	.+2      	; 0x26 <.do_clear_bss_start>
+
+00000024 <.do_clear_bss_loop>:
+  24:	1d 92       	st	X+, r1
+
+00000026 <.do_clear_bss_start>:
+  26:	a6 36       	cpi	r26, 0x66	; 102
+  28:	b2 07       	cpc	r27, r18
+  2a:	e1 f7       	brne	.-8      	; 0x24 <.do_clear_bss_loop>
+  2c:	3a d1       	rcall	.+628    	; 0x2a2 <main>
+  2e:	41 c1       	rjmp	.+642    	; 0x2b2 <_exit>
+
+00000030 <__bad_interrupt>:
+  30:	e7 cf       	rjmp	.-50     	; 0x0 <__vectors>
+
+00000032 <MCU_Setup>:
+	// PB3 - Relay, LED Drive
+	// PB4 - Mute MOSFETs
+	// PB5 - Reset (Pull-up 10k resistor to +Vcc)
+	
+	// 0 - input, 1 - output
+	DDRB = (0<<PB0)|(0<<PB1)|(1<<PB2)|(1<<PB3)|(1<<PB4)|(0<<PB5);
+  32:	8c e1       	ldi	r24, 0x1C	; 28
+  34:	87 bb       	out	0x17, r24	; 23
+	
+	// Pullup resistors
+	PORTB = (1<<PB0)|(1<<PB1)|(1<<PB5);
+  36:	83 e2       	ldi	r24, 0x23	; 35
+  38:	88 bb       	out	0x18, r24	; 24
+	
+	// Analog comparator OFF
+	ACSR |= (1<<ACD);
+  3a:	47 9a       	sbi	0x08, 7	; 8
+	
+	// Start timer T0 with prescaler 8
+	TCCR0B |= (1<<CS01);
+  3c:	83 b7       	in	r24, 0x33	; 51
+  3e:	82 60       	ori	r24, 0x02	; 2
+  40:	83 bf       	out	0x33, r24	; 51
+	
+	// Enable time T0 overflow interrupt
+	TIMSK0 |= (1<<OCIE0A);
+  42:	89 b7       	in	r24, 0x39	; 57
+  44:	84 60       	ori	r24, 0x04	; 4
+  46:	89 bf       	out	0x39, r24	; 57
+	
+	// Enable CTC Mode.
+	TCCR0A |= (1<<WGM01);
+  48:	8f b5       	in	r24, 0x2f	; 47
+  4a:	82 60       	ori	r24, 0x02	; 2
+  4c:	8f bd       	out	0x2f, r24	; 47
+	
+	// T0 will overflow each 1 ms
+	OCR0A = 150;
+  4e:	86 e9       	ldi	r24, 0x96	; 150
+  50:	86 bf       	out	0x36, r24	; 54
+	
+	// Reset timer T0 flags
+	TIFR0 = 0;
+  52:	18 be       	out	0x38, r1	; 56
+  54:	08 95       	ret
+
+00000056 <__vector_6>:
+	
+}
+
+ISR (TIM0_COMPA_vect) {
+  56:	1f 92       	push	r1
+  58:	0f 92       	push	r0
+  5a:	0f b6       	in	r0, 0x3f	; 63
+  5c:	0f 92       	push	r0
+  5e:	11 24       	eor	r1, r1
+  60:	2f 93       	push	r18
+  62:	8f 93       	push	r24
+  64:	9f 93       	push	r25
+	
+	// DRIVE. Long press handler timer
+	timer_Drive++;
+  66:	80 91 60 00 	lds	r24, 0x0060
+  6a:	90 91 61 00 	lds	r25, 0x0061
+  6e:	01 96       	adiw	r24, 0x01	; 1
+  70:	90 93 61 00 	sts	0x0061, r25
+  74:	80 93 60 00 	sts	0x0060, r24
+	if (timer_Drive >= LONG_PRESS_TIME)
+  78:	80 91 60 00 	lds	r24, 0x0060
+  7c:	90 91 61 00 	lds	r25, 0x0061
+  80:	88 35       	cpi	r24, 0x58	; 88
+  82:	92 40       	sbci	r25, 0x02	; 2
+  84:	48 f0       	brcs	.+18     	; 0x98 <__vector_6+0x42>
+	{
+		timer_Drive=0;
+  86:	10 92 61 00 	sts	0x0061, r1
+  8a:	10 92 60 00 	sts	0x0060, r1
+		SET_BIT(ISR_flags,TIMER_LONGPRESS_DRIVE);
+  8e:	80 91 65 00 	lds	r24, 0x0065
+  92:	81 60       	ori	r24, 0x01	; 1
+  94:	80 93 65 00 	sts	0x0065, r24
+	}
+	
+	// ULTRA. Long press handler timer
+	timer_Ultra++;
+  98:	80 91 62 00 	lds	r24, 0x0062
+  9c:	90 91 63 00 	lds	r25, 0x0063
+  a0:	01 96       	adiw	r24, 0x01	; 1
+  a2:	90 93 63 00 	sts	0x0063, r25
+  a6:	80 93 62 00 	sts	0x0062, r24
+	if (timer_Ultra >= LONG_PRESS_TIME)
+  aa:	80 91 62 00 	lds	r24, 0x0062
+  ae:	90 91 63 00 	lds	r25, 0x0063
+  b2:	88 35       	cpi	r24, 0x58	; 88
+  b4:	92 40       	sbci	r25, 0x02	; 2
+  b6:	48 f0       	brcs	.+18     	; 0xca <__stack+0x2b>
+	{
+		timer_Ultra=0;
+  b8:	10 92 63 00 	sts	0x0063, r1
+  bc:	10 92 62 00 	sts	0x0062, r1
+		SET_BIT(ISR_flags,TIMER_LONGPRESS_ULTRA);
+  c0:	80 91 65 00 	lds	r24, 0x0065
+  c4:	82 60       	ori	r24, 0x02	; 2
+  c6:	80 93 65 00 	sts	0x0065, r24
+	}
+	
+}
+  ca:	9f 91       	pop	r25
+  cc:	8f 91       	pop	r24
+  ce:	2f 91       	pop	r18
+  d0:	0f 90       	pop	r0
+  d2:	0f be       	out	0x3f, r0	; 63
+  d4:	0f 90       	pop	r0
+  d6:	1f 90       	pop	r1
+  d8:	18 95       	reti
+
+000000da <Drive_ON>:
+
+void Drive_ON() {	
+	MUTE_ON;
+  da:	c4 9a       	sbi	0x18, 4	; 24
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+  dc:	8f e5       	ldi	r24, 0x5F	; 95
+  de:	99 e0       	ldi	r25, 0x09	; 9
+  e0:	01 97       	sbiw	r24, 0x01	; 1
+  e2:	f1 f7       	brne	.-4      	; 0xe0 <Drive_ON+0x6>
+  e4:	00 c0       	rjmp	.+0      	; 0xe6 <Drive_ON+0xc>
+  e6:	00 00       	nop
+	_delay_ms(MUTE_DELAY);
+	RELAY_ON;
+  e8:	c3 9a       	sbi	0x18, 3	; 24
+  ea:	8f e6       	ldi	r24, 0x6F	; 111
+  ec:	97 e1       	ldi	r25, 0x17	; 23
+  ee:	01 97       	sbiw	r24, 0x01	; 1
+  f0:	f1 f7       	brne	.-4      	; 0xee <Drive_ON+0x14>
+  f2:	00 c0       	rjmp	.+0      	; 0xf4 <Drive_ON+0x1a>
+  f4:	00 00       	nop
+	_delay_ms(RELAY_DELAY);
+	MUTE_OFF;	
+  f6:	c4 98       	cbi	0x18, 4	; 24
+  f8:	08 95       	ret
+
+000000fa <Drive_OFF>:
+}
+
+void Drive_OFF() {	
+	MUTE_ON;
+  fa:	c4 9a       	sbi	0x18, 4	; 24
+  fc:	8f e5       	ldi	r24, 0x5F	; 95
+  fe:	99 e0       	ldi	r25, 0x09	; 9
+ 100:	01 97       	sbiw	r24, 0x01	; 1
+ 102:	f1 f7       	brne	.-4      	; 0x100 <Drive_OFF+0x6>
+ 104:	00 c0       	rjmp	.+0      	; 0x106 <Drive_OFF+0xc>
+ 106:	00 00       	nop
+	_delay_ms(MUTE_DELAY);
+	RELAY_OFF;
+ 108:	c3 98       	cbi	0x18, 3	; 24
+ 10a:	8f e6       	ldi	r24, 0x6F	; 111
+ 10c:	97 e1       	ldi	r25, 0x17	; 23
+ 10e:	01 97       	sbiw	r24, 0x01	; 1
+ 110:	f1 f7       	brne	.-4      	; 0x10e <Drive_OFF+0x14>
+ 112:	00 c0       	rjmp	.+0      	; 0x114 <Drive_OFF+0x1a>
+ 114:	00 00       	nop
+	_delay_ms(RELAY_DELAY);
+	MUTE_OFF;	
+ 116:	c4 98       	cbi	0x18, 4	; 24
+ 118:	08 95       	ret
+
+0000011a <Boost_ON>:
+}
+
+void Boost_ON() {
+	BOOST_ON;
+ 11a:	c2 9a       	sbi	0x18, 2	; 24
+ 11c:	08 95       	ret
+
+0000011e <Boost_OFF>:
+}
+
+void Boost_OFF() {
+	BOOST_OFF;
+ 11e:	c2 98       	cbi	0x18, 2	; 24
+ 120:	08 95       	ret
+
+00000122 <Flags_Handler>:
+	
+	// **********************************************
+	// Bypass
+	// **********************************************
+	
+	if (CHK_BIT(flags,DRIVE) && (!CHK_BIT(flags,DRIVE_LATCH)))
+ 122:	80 91 64 00 	lds	r24, 0x0064
+ 126:	84 ff       	sbrs	r24, 4
+ 128:	0a c0       	rjmp	.+20     	; 0x13e <Flags_Handler+0x1c>
+ 12a:	81 fd       	sbrc	r24, 1
+ 12c:	0e c0       	rjmp	.+28     	; 0x14a <Flags_Handler+0x28>
+	{
+		SET_BIT(flags,DRIVE_LATCH);
+ 12e:	82 60       	ori	r24, 0x02	; 2
+ 130:	80 93 64 00 	sts	0x0064, r24
+		Drive_ON();
+ 134:	d2 df       	rcall	.-92     	; 0xda <Drive_ON>
+	}
+	
+	if (!CHK_BIT(flags,DRIVE) && (CHK_BIT(flags,DRIVE_LATCH)))
+ 136:	80 91 64 00 	lds	r24, 0x0064
+ 13a:	84 fd       	sbrc	r24, 4
+ 13c:	06 c0       	rjmp	.+12     	; 0x14a <Flags_Handler+0x28>
+ 13e:	81 ff       	sbrs	r24, 1
+ 140:	04 c0       	rjmp	.+8      	; 0x14a <Flags_Handler+0x28>
+	{
+		CLR_BIT(flags,DRIVE_LATCH);
+ 142:	8d 7f       	andi	r24, 0xFD	; 253
+ 144:	80 93 64 00 	sts	0x0064, r24
+		Drive_OFF();
+ 148:	d8 df       	rcall	.-80     	; 0xfa <Drive_OFF>
+	
+	// **********************************************
+	// Boost
+	// **********************************************
+	
+	if (CHK_BIT(flags,BOOST))
+ 14a:	80 91 64 00 	lds	r24, 0x0064
+ 14e:	85 ff       	sbrs	r24, 5
+ 150:	02 c0       	rjmp	.+4      	; 0x156 <Flags_Handler+0x34>
+	{
+		Boost_ON();
+ 152:	e3 df       	rcall	.-58     	; 0x11a <Boost_ON>
+ 154:	08 95       	ret
+	}
+	else
+	{
+		Boost_OFF();
+ 156:	e3 df       	rcall	.-58     	; 0x11e <Boost_OFF>
+ 158:	08 95       	ret
+
+0000015a <Clear_Timer_Drive>:
+    return 1;
+}
+
+static __inline__ uint8_t __iCliRetVal(void)
+{
+    cli();
+ 15a:	f8 94       	cli
+void Clear_Timer_Drive() {
+	
+	// Clear "One Click" long press handling timer
+	ATOMIC_BLOCK(ATOMIC_FORCEON)
+	{
+		timer_Drive = 0;
+ 15c:	10 92 61 00 	sts	0x0061, r1
+ 160:	10 92 60 00 	sts	0x0060, r1
+		CLR_BIT(ISR_flags,TIMER_LONGPRESS_DRIVE);
+ 164:	80 91 65 00 	lds	r24, 0x0065
+ 168:	8e 7f       	andi	r24, 0xFE	; 254
+ 16a:	80 93 65 00 	sts	0x0065, r24
+    return 1;
+}
+
+static __inline__ void __iSeiParam(const uint8_t *__s)
+{
+    sei();
+ 16e:	78 94       	sei
+    __asm__ volatile ("" ::: "memory");
+ 170:	08 95       	ret
+
+00000172 <Drive_Button_Handler>:
+	
+}
+
+void Drive_Button_Handler() {
+	
+	if (BYPASS_BUTTON_PRESSED){
+ 172:	b1 99       	sbic	0x16, 1	; 22
+ 174:	12 c0       	rjmp	.+36     	; 0x19a <Drive_Button_Handler+0x28>
+ 176:	8b eb       	ldi	r24, 0xBB	; 187
+ 178:	94 e3       	ldi	r25, 0x34	; 52
+ 17a:	01 97       	sbiw	r24, 0x01	; 1
+ 17c:	f1 f7       	brne	.-4      	; 0x17a <Drive_Button_Handler+0x8>
+ 17e:	00 c0       	rjmp	.+0      	; 0x180 <Drive_Button_Handler+0xe>
+ 180:	00 00       	nop
+		_delay_ms(DEBOUNCE);
+		
+		if (BYPASS_BUTTON_PRESSED && (!CHK_BIT(flags,DRIVE_BUTTON_LATCH)) ){
+ 182:	b1 99       	sbic	0x16, 1	; 22
+ 184:	0a c0       	rjmp	.+20     	; 0x19a <Drive_Button_Handler+0x28>
+ 186:	80 91 64 00 	lds	r24, 0x0064
+ 18a:	80 fd       	sbrc	r24, 0
+ 18c:	06 c0       	rjmp	.+12     	; 0x19a <Drive_Button_Handler+0x28>
+			
+			SET_BIT(flags,DRIVE_BUTTON_LATCH);
+ 18e:	81 60       	ori	r24, 0x01	; 1
+			TOG_BIT(flags,DRIVE);
+ 190:	90 e1       	ldi	r25, 0x10	; 16
+ 192:	89 27       	eor	r24, r25
+ 194:	80 93 64 00 	sts	0x0064, r24
+			Clear_Timer_Drive();	
+ 198:	e0 df       	rcall	.-64     	; 0x15a <Clear_Timer_Drive>
+			}		
+		}
+	
+	// Button release
+	if ((BYPASS_BUTTON_RELEASED) && (CHK_BIT(flags,DRIVE_BUTTON_LATCH)) )
+ 19a:	b1 9b       	sbis	0x16, 1	; 22
+ 19c:	07 c0       	rjmp	.+14     	; 0x1ac <Drive_Button_Handler+0x3a>
+ 19e:	80 91 64 00 	lds	r24, 0x0064
+ 1a2:	80 ff       	sbrs	r24, 0
+ 1a4:	03 c0       	rjmp	.+6      	; 0x1ac <Drive_Button_Handler+0x3a>
+	{
+		CLR_BIT(flags,DRIVE_BUTTON_LATCH);
+ 1a6:	8e 7f       	andi	r24, 0xFE	; 254
+ 1a8:	80 93 64 00 	sts	0x0064, r24
+ 1ac:	08 95       	ret
+
+000001ae <Ultra_Long_Click_Button_Handler>:
+	}	
+}
+
+void Ultra_Long_Click_Button_Handler() {
+	
+	if (BOOST_BUTTON_PRESSED && (!CHK_BIT(flags,MOMENTARY_MODE_LATCH)) && (CHK_BIT(ISR_flags,TIMER_LONGPRESS_ULTRA)))
+ 1ae:	b0 99       	sbic	0x16, 0	; 22
+ 1b0:	13 c0       	rjmp	.+38     	; 0x1d8 <Ultra_Long_Click_Button_Handler+0x2a>
+ 1b2:	80 91 64 00 	lds	r24, 0x0064
+ 1b6:	83 fd       	sbrc	r24, 3
+ 1b8:	0f c0       	rjmp	.+30     	; 0x1d8 <Ultra_Long_Click_Button_Handler+0x2a>
+ 1ba:	90 91 65 00 	lds	r25, 0x0065
+ 1be:	91 ff       	sbrs	r25, 1
+ 1c0:	0b c0       	rjmp	.+22     	; 0x1d8 <Ultra_Long_Click_Button_Handler+0x2a>
+	{
+		SET_BIT(flags,MOMENTARY_MODE_LATCH);
+ 1c2:	88 60       	ori	r24, 0x08	; 8
+		TOG_BIT(flags,BOOST);
+ 1c4:	90 e2       	ldi	r25, 0x20	; 32
+ 1c6:	89 27       	eor	r24, r25
+ 1c8:	80 93 64 00 	sts	0x0064, r24
+		
+		while (BOOST_BUTTON_PRESSED) {
+ 1cc:	b0 99       	sbic	0x16, 0	; 22
+ 1ce:	04 c0       	rjmp	.+8      	; 0x1d8 <Ultra_Long_Click_Button_Handler+0x2a>
+			// Do nothing
+			Drive_Button_Handler();
+ 1d0:	d0 df       	rcall	.-96     	; 0x172 <Drive_Button_Handler>
+			asm("nop");
+ 1d2:	00 00       	nop
+	if (BOOST_BUTTON_PRESSED && (!CHK_BIT(flags,MOMENTARY_MODE_LATCH)) && (CHK_BIT(ISR_flags,TIMER_LONGPRESS_ULTRA)))
+	{
+		SET_BIT(flags,MOMENTARY_MODE_LATCH);
+		TOG_BIT(flags,BOOST);
+		
+		while (BOOST_BUTTON_PRESSED) {
+ 1d4:	b0 9b       	sbis	0x16, 0	; 22
+ 1d6:	fc cf       	rjmp	.-8      	; 0x1d0 <Ultra_Long_Click_Button_Handler+0x22>
+		}
+		
+	}
+	
+	// Button release
+	if ((BOOST_BUTTON_RELEASED) && (CHK_BIT(flags,MOMENTARY_MODE_LATCH)) )
+ 1d8:	b0 9b       	sbis	0x16, 0	; 22
+ 1da:	07 c0       	rjmp	.+14     	; 0x1ea <Ultra_Long_Click_Button_Handler+0x3c>
+ 1dc:	80 91 64 00 	lds	r24, 0x0064
+ 1e0:	83 ff       	sbrs	r24, 3
+ 1e2:	03 c0       	rjmp	.+6      	; 0x1ea <Ultra_Long_Click_Button_Handler+0x3c>
+	{
+		CLR_BIT(flags,MOMENTARY_MODE_LATCH);
+ 1e4:	87 7f       	andi	r24, 0xF7	; 247
+ 1e6:	80 93 64 00 	sts	0x0064, r24
+	}
+	
+	if (BOOST_BUTTON_RELEASED)
+ 1ea:	b0 9b       	sbis	0x16, 0	; 22
+ 1ec:	07 c0       	rjmp	.+14     	; 0x1fc <Ultra_Long_Click_Button_Handler+0x4e>
+    return 1;
+}
+
+static __inline__ uint8_t __iCliRetVal(void)
+{
+    cli();
+ 1ee:	f8 94       	cli
+	{
+		ATOMIC_BLOCK(ATOMIC_FORCEON)
+		{
+			CLR_BIT(ISR_flags,TIMER_LONGPRESS_ULTRA);
+ 1f0:	80 91 65 00 	lds	r24, 0x0065
+ 1f4:	8d 7f       	andi	r24, 0xFD	; 253
+ 1f6:	80 93 65 00 	sts	0x0065, r24
+    return 1;
+}
+
+static __inline__ void __iSeiParam(const uint8_t *__s)
+{
+    sei();
+ 1fa:	78 94       	sei
+    __asm__ volatile ("" ::: "memory");
+ 1fc:	08 95       	ret
+
+000001fe <Clear_Timer_Ultra>:
+    return 1;
+}
+
+static __inline__ uint8_t __iCliRetVal(void)
+{
+    cli();
+ 1fe:	f8 94       	cli
+void Clear_Timer_Ultra() {
+	
+	// Clear "One Click" long press handling timer
+	ATOMIC_BLOCK(ATOMIC_FORCEON)
+	{
+		timer_Ultra = 0;
+ 200:	10 92 63 00 	sts	0x0063, r1
+ 204:	10 92 62 00 	sts	0x0062, r1
+		CLR_BIT(ISR_flags,TIMER_LONGPRESS_ULTRA);
+ 208:	80 91 65 00 	lds	r24, 0x0065
+ 20c:	8d 7f       	andi	r24, 0xFD	; 253
+ 20e:	80 93 65 00 	sts	0x0065, r24
+    return 1;
+}
+
+static __inline__ void __iSeiParam(const uint8_t *__s)
+{
+    sei();
+ 212:	78 94       	sei
+    __asm__ volatile ("" ::: "memory");
+ 214:	08 95       	ret
+
+00000216 <Boost_Button_Handler>:
+	
+}
+
+void Boost_Button_Handler() {
+	
+	if (BOOST_BUTTON_PRESSED){
+ 216:	b0 99       	sbic	0x16, 0	; 22
+ 218:	12 c0       	rjmp	.+36     	; 0x23e <Boost_Button_Handler+0x28>
+ 21a:	8b eb       	ldi	r24, 0xBB	; 187
+ 21c:	94 e3       	ldi	r25, 0x34	; 52
+ 21e:	01 97       	sbiw	r24, 0x01	; 1
+ 220:	f1 f7       	brne	.-4      	; 0x21e <Boost_Button_Handler+0x8>
+ 222:	00 c0       	rjmp	.+0      	; 0x224 <Boost_Button_Handler+0xe>
+ 224:	00 00       	nop
+		_delay_ms(DEBOUNCE);
+		
+		if (BOOST_BUTTON_PRESSED && (!CHK_BIT(flags,BOOST_BUTTON_LATCH)) ){
+ 226:	b0 99       	sbic	0x16, 0	; 22
+ 228:	0a c0       	rjmp	.+20     	; 0x23e <Boost_Button_Handler+0x28>
+ 22a:	80 91 64 00 	lds	r24, 0x0064
+ 22e:	82 fd       	sbrc	r24, 2
+ 230:	06 c0       	rjmp	.+12     	; 0x23e <Boost_Button_Handler+0x28>
+			
+			SET_BIT(flags,BOOST_BUTTON_LATCH);
+ 232:	84 60       	ori	r24, 0x04	; 4
+			TOG_BIT(flags,BOOST);
+ 234:	90 e2       	ldi	r25, 0x20	; 32
+ 236:	89 27       	eor	r24, r25
+ 238:	80 93 64 00 	sts	0x0064, r24
+			Clear_Timer_Ultra();
+ 23c:	e0 df       	rcall	.-64     	; 0x1fe <Clear_Timer_Ultra>
+		}
+	}
+	
+	// Button release
+	if ((BOOST_BUTTON_RELEASED) && (CHK_BIT(flags,BOOST_BUTTON_LATCH)) )
+ 23e:	b0 9b       	sbis	0x16, 0	; 22
+ 240:	07 c0       	rjmp	.+14     	; 0x250 <Boost_Button_Handler+0x3a>
+ 242:	80 91 64 00 	lds	r24, 0x0064
+ 246:	82 ff       	sbrs	r24, 2
+ 248:	03 c0       	rjmp	.+6      	; 0x250 <Boost_Button_Handler+0x3a>
+	{
+		CLR_BIT(flags,BOOST_BUTTON_LATCH);
+ 24a:	8b 7f       	andi	r24, 0xFB	; 251
+ 24c:	80 93 64 00 	sts	0x0064, r24
+ 250:	08 95       	ret
+
+00000252 <Drive_Long_Click_Button_Handler>:
+	
+}
+
+void Drive_Long_Click_Button_Handler() {
+	
+	if (BYPASS_BUTTON_PRESSED && (!CHK_BIT(flags,MOMENTARY_MODE_LATCH)) && (CHK_BIT(ISR_flags,TIMER_LONGPRESS_DRIVE)))
+ 252:	b1 99       	sbic	0x16, 1	; 22
+ 254:	13 c0       	rjmp	.+38     	; 0x27c <Drive_Long_Click_Button_Handler+0x2a>
+ 256:	80 91 64 00 	lds	r24, 0x0064
+ 25a:	83 fd       	sbrc	r24, 3
+ 25c:	0f c0       	rjmp	.+30     	; 0x27c <Drive_Long_Click_Button_Handler+0x2a>
+ 25e:	90 91 65 00 	lds	r25, 0x0065
+ 262:	90 ff       	sbrs	r25, 0
+ 264:	0b c0       	rjmp	.+22     	; 0x27c <Drive_Long_Click_Button_Handler+0x2a>
+	{
+		SET_BIT(flags,MOMENTARY_MODE_LATCH);
+ 266:	88 60       	ori	r24, 0x08	; 8
+		TOG_BIT(flags,DRIVE);
+ 268:	90 e1       	ldi	r25, 0x10	; 16
+ 26a:	89 27       	eor	r24, r25
+ 26c:	80 93 64 00 	sts	0x0064, r24
+			
+		while (BYPASS_BUTTON_PRESSED) {
+ 270:	b1 99       	sbic	0x16, 1	; 22
+ 272:	04 c0       	rjmp	.+8      	; 0x27c <Drive_Long_Click_Button_Handler+0x2a>
+		Boost_Button_Handler();// Do nothing
+ 274:	d0 df       	rcall	.-96     	; 0x216 <Boost_Button_Handler>
+		asm("nop");	
+ 276:	00 00       	nop
+	if (BYPASS_BUTTON_PRESSED && (!CHK_BIT(flags,MOMENTARY_MODE_LATCH)) && (CHK_BIT(ISR_flags,TIMER_LONGPRESS_DRIVE)))
+	{
+		SET_BIT(flags,MOMENTARY_MODE_LATCH);
+		TOG_BIT(flags,DRIVE);
+			
+		while (BYPASS_BUTTON_PRESSED) {
+ 278:	b1 9b       	sbis	0x16, 1	; 22
+ 27a:	fc cf       	rjmp	.-8      	; 0x274 <Drive_Long_Click_Button_Handler+0x22>
+		}
+		
+	}
+	
+	// Button release
+	if ((BYPASS_BUTTON_RELEASED) && (CHK_BIT(flags,MOMENTARY_MODE_LATCH)) )
+ 27c:	b1 9b       	sbis	0x16, 1	; 22
+ 27e:	07 c0       	rjmp	.+14     	; 0x28e <Drive_Long_Click_Button_Handler+0x3c>
+ 280:	80 91 64 00 	lds	r24, 0x0064
+ 284:	83 ff       	sbrs	r24, 3
+ 286:	03 c0       	rjmp	.+6      	; 0x28e <Drive_Long_Click_Button_Handler+0x3c>
+	{
+		CLR_BIT(flags,MOMENTARY_MODE_LATCH);
+ 288:	87 7f       	andi	r24, 0xF7	; 247
+ 28a:	80 93 64 00 	sts	0x0064, r24
+	}
+	
+	if (BYPASS_BUTTON_RELEASED)
+ 28e:	b1 9b       	sbis	0x16, 1	; 22
+ 290:	07 c0       	rjmp	.+14     	; 0x2a0 <Drive_Long_Click_Button_Handler+0x4e>
+    return 1;
+}
+
+static __inline__ uint8_t __iCliRetVal(void)
+{
+    cli();
+ 292:	f8 94       	cli
+	{
+		ATOMIC_BLOCK(ATOMIC_FORCEON)
+		{
+			CLR_BIT(ISR_flags,TIMER_LONGPRESS_DRIVE);
+ 294:	80 91 65 00 	lds	r24, 0x0065
+ 298:	8e 7f       	andi	r24, 0xFE	; 254
+ 29a:	80 93 65 00 	sts	0x0065, r24
+    return 1;
+}
+
+static __inline__ void __iSeiParam(const uint8_t *__s)
+{
+    sei();
+ 29e:	78 94       	sei
+    __asm__ volatile ("" ::: "memory");
+ 2a0:	08 95       	ret
+
+000002a2 <main>:
+	
+}
+
+int main(void)
+{
+	MCU_Setup();
+ 2a2:	c7 de       	rcall	.-626    	; 0x32 <MCU_Setup>
+	sei();
+ 2a4:	78 94       	sei
+    while(1)
+    {
+        Drive_Button_Handler();
+ 2a6:	65 df       	rcall	.-310    	; 0x172 <Drive_Button_Handler>
+		Boost_Button_Handler();
+ 2a8:	b6 df       	rcall	.-148    	; 0x216 <Boost_Button_Handler>
+        Flags_Handler();
+ 2aa:	3b df       	rcall	.-394    	; 0x122 <Flags_Handler>
+        Drive_Long_Click_Button_Handler();
+ 2ac:	d2 df       	rcall	.-92     	; 0x252 <Drive_Long_Click_Button_Handler>
+		Ultra_Long_Click_Button_Handler();
+ 2ae:	7f df       	rcall	.-258    	; 0x1ae <Ultra_Long_Click_Button_Handler>
+ 2b0:	fa cf       	rjmp	.-12     	; 0x2a6 <main+0x4>
+
+000002b2 <_exit>:
+ 2b2:	f8 94       	cli
+
+000002b4 <__stop_program>:
+ 2b4:	ff cf       	rjmp	.-2      	; 0x2b4 <__stop_program>

@@ -1,0 +1,457 @@
+
+Soft_Silent_RBS_System_Rev_3_1.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         000003d8  00000000  00000000  00000074  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .bss          00000007  00800060  00800060  0000044c  2**0
+                  ALLOC
+  2 .comment      00000030  00000000  00000000  0000044c  2**0
+                  CONTENTS, READONLY
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	09 c0       	rjmp	.+18     	; 0x14 <__ctors_end>
+   2:	16 c0       	rjmp	.+44     	; 0x30 <__bad_interrupt>
+   4:	15 c0       	rjmp	.+42     	; 0x30 <__bad_interrupt>
+   6:	14 c0       	rjmp	.+40     	; 0x30 <__bad_interrupt>
+   8:	13 c0       	rjmp	.+38     	; 0x30 <__bad_interrupt>
+   a:	12 c0       	rjmp	.+36     	; 0x30 <__bad_interrupt>
+   c:	12 c0       	rjmp	.+36     	; 0x32 <__vector_6>
+   e:	10 c0       	rjmp	.+32     	; 0x30 <__bad_interrupt>
+  10:	0f c0       	rjmp	.+30     	; 0x30 <__bad_interrupt>
+  12:	0e c0       	rjmp	.+28     	; 0x30 <__bad_interrupt>
+
+00000014 <__ctors_end>:
+  14:	11 24       	eor	r1, r1
+  16:	1f be       	out	0x3f, r1	; 63
+  18:	cf e9       	ldi	r28, 0x9F	; 159
+  1a:	cd bf       	out	0x3d, r28	; 61
+
+0000001c <__do_clear_bss>:
+  1c:	20 e0       	ldi	r18, 0x00	; 0
+  1e:	a0 e6       	ldi	r26, 0x60	; 96
+  20:	b0 e0       	ldi	r27, 0x00	; 0
+  22:	01 c0       	rjmp	.+2      	; 0x26 <.do_clear_bss_start>
+
+00000024 <.do_clear_bss_loop>:
+  24:	1d 92       	st	X+, r1
+
+00000026 <.do_clear_bss_start>:
+  26:	a7 36       	cpi	r26, 0x67	; 103
+  28:	b2 07       	cpc	r27, r18
+  2a:	e1 f7       	brne	.-8      	; 0x24 <.do_clear_bss_loop>
+  2c:	cc d1       	rcall	.+920    	; 0x3c6 <main>
+  2e:	d2 c1       	rjmp	.+932    	; 0x3d4 <_exit>
+
+00000030 <__bad_interrupt>:
+  30:	e7 cf       	rjmp	.-50     	; 0x0 <__vectors>
+
+00000032 <__vector_6>:
+  32:	1f 92       	push	r1
+  34:	0f 92       	push	r0
+  36:	0f b6       	in	r0, 0x3f	; 63
+  38:	0f 92       	push	r0
+  3a:	11 24       	eor	r1, r1
+  3c:	2f 93       	push	r18
+  3e:	8f 93       	push	r24
+  40:	9f 93       	push	r25
+  42:	80 91 63 00 	lds	r24, 0x0063
+  46:	90 91 64 00 	lds	r25, 0x0064
+  4a:	01 96       	adiw	r24, 0x01	; 1
+  4c:	90 93 64 00 	sts	0x0064, r25
+  50:	80 93 63 00 	sts	0x0063, r24
+  54:	80 91 63 00 	lds	r24, 0x0063
+  58:	90 91 64 00 	lds	r25, 0x0064
+  5c:	88 35       	cpi	r24, 0x58	; 88
+  5e:	92 40       	sbci	r25, 0x02	; 2
+  60:	48 f0       	brcs	.+18     	; 0x74 <__SREG__+0x35>
+  62:	10 92 64 00 	sts	0x0064, r1
+  66:	10 92 63 00 	sts	0x0063, r1
+  6a:	80 91 66 00 	lds	r24, 0x0066
+  6e:	82 60       	ori	r24, 0x02	; 2
+  70:	80 93 66 00 	sts	0x0066, r24
+  74:	80 91 60 00 	lds	r24, 0x0060
+  78:	90 91 61 00 	lds	r25, 0x0061
+  7c:	01 96       	adiw	r24, 0x01	; 1
+  7e:	90 93 61 00 	sts	0x0061, r25
+  82:	80 93 60 00 	sts	0x0060, r24
+  86:	80 91 60 00 	lds	r24, 0x0060
+  8a:	90 91 61 00 	lds	r25, 0x0061
+  8e:	80 39       	cpi	r24, 0x90	; 144
+  90:	91 40       	sbci	r25, 0x01	; 1
+  92:	48 f0       	brcs	.+18     	; 0xa6 <__stack+0x7>
+  94:	10 92 61 00 	sts	0x0061, r1
+  98:	10 92 60 00 	sts	0x0060, r1
+  9c:	80 91 66 00 	lds	r24, 0x0066
+  a0:	84 60       	ori	r24, 0x04	; 4
+  a2:	80 93 66 00 	sts	0x0066, r24
+  a6:	9f 91       	pop	r25
+  a8:	8f 91       	pop	r24
+  aa:	2f 91       	pop	r18
+  ac:	0f 90       	pop	r0
+  ae:	0f be       	out	0x3f, r0	; 63
+  b0:	0f 90       	pop	r0
+  b2:	1f 90       	pop	r1
+  b4:	18 95       	reti
+
+000000b6 <MCU_Setup>:
+  b6:	8d e1       	ldi	r24, 0x1D	; 29
+  b8:	87 bb       	out	0x17, r24	; 23
+  ba:	82 e2       	ldi	r24, 0x22	; 34
+  bc:	88 bb       	out	0x18, r24	; 24
+  be:	47 9a       	sbi	0x08, 7	; 8
+  c0:	83 b7       	in	r24, 0x33	; 51
+  c2:	82 60       	ori	r24, 0x02	; 2
+  c4:	83 bf       	out	0x33, r24	; 51
+  c6:	89 b7       	in	r24, 0x39	; 57
+  c8:	84 60       	ori	r24, 0x04	; 4
+  ca:	89 bf       	out	0x39, r24	; 57
+  cc:	8f b5       	in	r24, 0x2f	; 47
+  ce:	82 60       	ori	r24, 0x02	; 2
+  d0:	8f bd       	out	0x2f, r24	; 47
+  d2:	86 e9       	ldi	r24, 0x96	; 150
+  d4:	86 bf       	out	0x36, r24	; 54
+  d6:	18 be       	out	0x38, r1	; 56
+  d8:	08 95       	ret
+
+000000da <Blinking>:
+  da:	86 e0       	ldi	r24, 0x06	; 6
+  dc:	90 e0       	ldi	r25, 0x00	; 0
+  de:	48 e0       	ldi	r20, 0x08	; 8
+  e0:	34 e0       	ldi	r19, 0x04	; 4
+  e2:	28 b3       	in	r18, 0x18	; 24
+  e4:	24 27       	eor	r18, r20
+  e6:	28 bb       	out	0x18, r18	; 24
+  e8:	28 b3       	in	r18, 0x18	; 24
+  ea:	23 27       	eor	r18, r19
+  ec:	28 bb       	out	0x18, r18	; 24
+  ee:	ef e5       	ldi	r30, 0x5F	; 95
+  f0:	fa ee       	ldi	r31, 0xEA	; 234
+  f2:	31 97       	sbiw	r30, 0x01	; 1
+  f4:	f1 f7       	brne	.-4      	; 0xf2 <Blinking+0x18>
+  f6:	00 c0       	rjmp	.+0      	; 0xf8 <Blinking+0x1e>
+  f8:	00 00       	nop
+  fa:	01 97       	sbiw	r24, 0x01	; 1
+  fc:	00 97       	sbiw	r24, 0x00	; 0
+  fe:	89 f7       	brne	.-30     	; 0xe2 <Blinking+0x8>
+ 100:	08 95       	ret
+
+00000102 <Bypass_Mode_Checker>:
+ 102:	b1 99       	sbic	0x16, 1	; 22
+ 104:	1b c0       	rjmp	.+54     	; 0x13c <Bypass_Mode_Checker+0x3a>
+ 106:	8b e4       	ldi	r24, 0x4B	; 75
+ 108:	9d e1       	ldi	r25, 0x1D	; 29
+ 10a:	01 97       	sbiw	r24, 0x01	; 1
+ 10c:	f1 f7       	brne	.-4      	; 0x10a <Bypass_Mode_Checker+0x8>
+ 10e:	00 c0       	rjmp	.+0      	; 0x110 <Bypass_Mode_Checker+0xe>
+ 110:	00 00       	nop
+ 112:	b1 99       	sbic	0x16, 1	; 22
+ 114:	13 c0       	rjmp	.+38     	; 0x13c <Bypass_Mode_Checker+0x3a>
+ 116:	9f ef       	ldi	r25, 0xFF	; 255
+ 118:	2d ee       	ldi	r18, 0xED	; 237
+ 11a:	82 e0       	ldi	r24, 0x02	; 2
+ 11c:	91 50       	subi	r25, 0x01	; 1
+ 11e:	20 40       	sbci	r18, 0x00	; 0
+ 120:	80 40       	sbci	r24, 0x00	; 0
+ 122:	e1 f7       	brne	.-8      	; 0x11c <Bypass_Mode_Checker+0x1a>
+ 124:	00 c0       	rjmp	.+0      	; 0x126 <Bypass_Mode_Checker+0x24>
+ 126:	00 00       	nop
+ 128:	80 91 65 00 	lds	r24, 0x0065
+ 12c:	80 64       	ori	r24, 0x40	; 64
+ 12e:	80 93 65 00 	sts	0x0065, r24
+ 132:	d3 df       	rcall	.-90     	; 0xda <Blinking>
+ 134:	b1 99       	sbic	0x16, 1	; 22
+ 136:	02 c0       	rjmp	.+4      	; 0x13c <Bypass_Mode_Checker+0x3a>
+ 138:	00 00       	nop
+ 13a:	fc cf       	rjmp	.-8      	; 0x134 <Bypass_Mode_Checker+0x32>
+ 13c:	08 95       	ret
+
+0000013e <Drive_ON>:
+ 13e:	c4 9a       	sbi	0x18, 4	; 24
+ 140:	8f e5       	ldi	r24, 0x5F	; 95
+ 142:	99 e0       	ldi	r25, 0x09	; 9
+ 144:	01 97       	sbiw	r24, 0x01	; 1
+ 146:	f1 f7       	brne	.-4      	; 0x144 <Drive_ON+0x6>
+ 148:	00 c0       	rjmp	.+0      	; 0x14a <Drive_ON+0xc>
+ 14a:	00 00       	nop
+ 14c:	c0 9a       	sbi	0x18, 0	; 24
+ 14e:	8f e6       	ldi	r24, 0x6F	; 111
+ 150:	97 e1       	ldi	r25, 0x17	; 23
+ 152:	01 97       	sbiw	r24, 0x01	; 1
+ 154:	f1 f7       	brne	.-4      	; 0x152 <Drive_ON+0x14>
+ 156:	00 c0       	rjmp	.+0      	; 0x158 <Drive_ON+0x1a>
+ 158:	00 00       	nop
+ 15a:	c3 9a       	sbi	0x18, 3	; 24
+ 15c:	c4 98       	cbi	0x18, 4	; 24
+ 15e:	08 95       	ret
+
+00000160 <Drive_OFF>:
+ 160:	c4 9a       	sbi	0x18, 4	; 24
+ 162:	8f e5       	ldi	r24, 0x5F	; 95
+ 164:	99 e0       	ldi	r25, 0x09	; 9
+ 166:	01 97       	sbiw	r24, 0x01	; 1
+ 168:	f1 f7       	brne	.-4      	; 0x166 <Drive_OFF+0x6>
+ 16a:	00 c0       	rjmp	.+0      	; 0x16c <Drive_OFF+0xc>
+ 16c:	00 00       	nop
+ 16e:	c0 98       	cbi	0x18, 0	; 24
+ 170:	8f e6       	ldi	r24, 0x6F	; 111
+ 172:	97 e1       	ldi	r25, 0x17	; 23
+ 174:	01 97       	sbiw	r24, 0x01	; 1
+ 176:	f1 f7       	brne	.-4      	; 0x174 <Drive_OFF+0x14>
+ 178:	00 c0       	rjmp	.+0      	; 0x17a <Drive_OFF+0x1a>
+ 17a:	00 00       	nop
+ 17c:	c3 98       	cbi	0x18, 3	; 24
+ 17e:	c4 98       	cbi	0x18, 4	; 24
+ 180:	08 95       	ret
+
+00000182 <Clear_Timer_2_Long_Press>:
+ 182:	f8 94       	cli
+ 184:	10 92 64 00 	sts	0x0064, r1
+ 188:	10 92 63 00 	sts	0x0063, r1
+ 18c:	80 91 66 00 	lds	r24, 0x0066
+ 190:	8d 7f       	andi	r24, 0xFD	; 253
+ 192:	80 93 66 00 	sts	0x0066, r24
+ 196:	78 94       	sei
+ 198:	08 95       	ret
+
+0000019a <Clear_Timer_3_Double_Click>:
+ 19a:	f8 94       	cli
+ 19c:	10 92 61 00 	sts	0x0061, r1
+ 1a0:	10 92 60 00 	sts	0x0060, r1
+ 1a4:	80 91 66 00 	lds	r24, 0x0066
+ 1a8:	8b 7f       	andi	r24, 0xFB	; 251
+ 1aa:	80 93 66 00 	sts	0x0066, r24
+ 1ae:	78 94       	sei
+ 1b0:	08 95       	ret
+
+000001b2 <Flags_Handler>:
+ 1b2:	80 91 65 00 	lds	r24, 0x0065
+ 1b6:	84 ff       	sbrs	r24, 4
+ 1b8:	06 c0       	rjmp	.+12     	; 0x1c6 <Flags_Handler+0x14>
+ 1ba:	81 fd       	sbrc	r24, 1
+ 1bc:	04 c0       	rjmp	.+8      	; 0x1c6 <Flags_Handler+0x14>
+ 1be:	82 60       	ori	r24, 0x02	; 2
+ 1c0:	80 93 65 00 	sts	0x0065, r24
+ 1c4:	bc df       	rcall	.-136    	; 0x13e <Drive_ON>
+ 1c6:	80 91 65 00 	lds	r24, 0x0065
+ 1ca:	84 fd       	sbrc	r24, 4
+ 1cc:	06 c0       	rjmp	.+12     	; 0x1da <Flags_Handler+0x28>
+ 1ce:	81 ff       	sbrs	r24, 1
+ 1d0:	04 c0       	rjmp	.+8      	; 0x1da <Flags_Handler+0x28>
+ 1d2:	8d 7f       	andi	r24, 0xFD	; 253
+ 1d4:	80 93 65 00 	sts	0x0065, r24
+ 1d8:	c3 df       	rcall	.-122    	; 0x160 <Drive_OFF>
+ 1da:	80 91 65 00 	lds	r24, 0x0065
+ 1de:	85 ff       	sbrs	r24, 5
+ 1e0:	02 c0       	rjmp	.+4      	; 0x1e6 <Flags_Handler+0x34>
+ 1e2:	c2 9a       	sbi	0x18, 2	; 24
+ 1e4:	08 95       	ret
+ 1e6:	c2 98       	cbi	0x18, 2	; 24
+ 1e8:	08 95       	ret
+
+000001ea <Long_Click_Button_Handler>:
+ 1ea:	b1 9b       	sbis	0x16, 1	; 22
+ 1ec:	03 c0       	rjmp	.+6      	; 0x1f4 <Long_Click_Button_Handler+0xa>
+ 1ee:	b1 99       	sbic	0x16, 1	; 22
+ 1f0:	2d c0       	rjmp	.+90     	; 0x24c <Long_Click_Button_Handler+0x62>
+ 1f2:	33 c0       	rjmp	.+102    	; 0x25a <Long_Click_Button_Handler+0x70>
+ 1f4:	80 91 65 00 	lds	r24, 0x0065
+ 1f8:	82 fd       	sbrc	r24, 2
+ 1fa:	f9 cf       	rjmp	.-14     	; 0x1ee <Long_Click_Button_Handler+0x4>
+ 1fc:	90 91 66 00 	lds	r25, 0x0066
+ 200:	91 ff       	sbrs	r25, 1
+ 202:	f5 cf       	rjmp	.-22     	; 0x1ee <Long_Click_Button_Handler+0x4>
+ 204:	98 2f       	mov	r25, r24
+ 206:	94 60       	ori	r25, 0x04	; 4
+ 208:	86 ff       	sbrs	r24, 6
+ 20a:	03 c0       	rjmp	.+6      	; 0x212 <Long_Click_Button_Handler+0x28>
+ 20c:	90 93 65 00 	sts	0x0065, r25
+ 210:	04 c0       	rjmp	.+8      	; 0x21a <Long_Click_Button_Handler+0x30>
+ 212:	80 e1       	ldi	r24, 0x10	; 16
+ 214:	89 27       	eor	r24, r25
+ 216:	80 93 65 00 	sts	0x0065, r24
+ 21a:	90 91 65 00 	lds	r25, 0x0065
+ 21e:	96 ff       	sbrs	r25, 6
+ 220:	11 c0       	rjmp	.+34     	; 0x244 <Long_Click_Button_Handler+0x5a>
+ 222:	97 fd       	sbrc	r25, 7
+ 224:	05 c0       	rjmp	.+10     	; 0x230 <Long_Click_Button_Handler+0x46>
+ 226:	80 e1       	ldi	r24, 0x10	; 16
+ 228:	89 27       	eor	r24, r25
+ 22a:	87 7f       	andi	r24, 0xF7	; 247
+ 22c:	80 93 65 00 	sts	0x0065, r24
+ 230:	90 91 65 00 	lds	r25, 0x0065
+ 234:	97 ff       	sbrs	r25, 7
+ 236:	06 c0       	rjmp	.+12     	; 0x244 <Long_Click_Button_Handler+0x5a>
+ 238:	94 ff       	sbrs	r25, 4
+ 23a:	04 c0       	rjmp	.+8      	; 0x244 <Long_Click_Button_Handler+0x5a>
+ 23c:	80 e2       	ldi	r24, 0x20	; 32
+ 23e:	89 27       	eor	r24, r25
+ 240:	80 93 65 00 	sts	0x0065, r24
+ 244:	b1 99       	sbic	0x16, 1	; 22
+ 246:	d3 cf       	rjmp	.-90     	; 0x1ee <Long_Click_Button_Handler+0x4>
+ 248:	00 00       	nop
+ 24a:	fc cf       	rjmp	.-8      	; 0x244 <Long_Click_Button_Handler+0x5a>
+ 24c:	80 91 65 00 	lds	r24, 0x0065
+ 250:	82 ff       	sbrs	r24, 2
+ 252:	03 c0       	rjmp	.+6      	; 0x25a <Long_Click_Button_Handler+0x70>
+ 254:	8b 7f       	andi	r24, 0xFB	; 251
+ 256:	80 93 65 00 	sts	0x0065, r24
+ 25a:	b1 9b       	sbis	0x16, 1	; 22
+ 25c:	07 c0       	rjmp	.+14     	; 0x26c <Long_Click_Button_Handler+0x82>
+ 25e:	f8 94       	cli
+ 260:	80 91 66 00 	lds	r24, 0x0066
+ 264:	8d 7f       	andi	r24, 0xFD	; 253
+ 266:	80 93 66 00 	sts	0x0066, r24
+ 26a:	78 94       	sei
+ 26c:	08 95       	ret
+
+0000026e <Double_Click_Protection>:
+ 26e:	f8 94       	cli
+ 270:	10 92 61 00 	sts	0x0061, r1
+ 274:	10 92 60 00 	sts	0x0060, r1
+ 278:	80 91 66 00 	lds	r24, 0x0066
+ 27c:	8b 7f       	andi	r24, 0xFB	; 251
+ 27e:	80 93 66 00 	sts	0x0066, r24
+ 282:	78 94       	sei
+ 284:	08 95       	ret
+
+00000286 <Button_Handler>:
+ 286:	b1 99       	sbic	0x16, 1	; 22
+ 288:	40 c0       	rjmp	.+128    	; 0x30a <Button_Handler+0x84>
+ 28a:	8b eb       	ldi	r24, 0xBB	; 187
+ 28c:	94 e3       	ldi	r25, 0x34	; 52
+ 28e:	01 97       	sbiw	r24, 0x01	; 1
+ 290:	f1 f7       	brne	.-4      	; 0x28e <Button_Handler+0x8>
+ 292:	00 c0       	rjmp	.+0      	; 0x294 <Button_Handler+0xe>
+ 294:	00 00       	nop
+ 296:	b1 99       	sbic	0x16, 1	; 22
+ 298:	38 c0       	rjmp	.+112    	; 0x30a <Button_Handler+0x84>
+ 29a:	80 91 65 00 	lds	r24, 0x0065
+ 29e:	80 fd       	sbrc	r24, 0
+ 2a0:	34 c0       	rjmp	.+104    	; 0x30a <Button_Handler+0x84>
+ 2a2:	83 ff       	sbrs	r24, 3
+ 2a4:	04 c0       	rjmp	.+8      	; 0x2ae <Button_Handler+0x28>
+ 2a6:	81 60       	ori	r24, 0x01	; 1
+ 2a8:	80 93 65 00 	sts	0x0065, r24
+ 2ac:	08 c0       	rjmp	.+16     	; 0x2be <Button_Handler+0x38>
+ 2ae:	8f 77       	andi	r24, 0x7F	; 127
+ 2b0:	81 60       	ori	r24, 0x01	; 1
+ 2b2:	90 e1       	ldi	r25, 0x10	; 16
+ 2b4:	89 27       	eor	r24, r25
+ 2b6:	80 93 65 00 	sts	0x0065, r24
+ 2ba:	d9 df       	rcall	.-78     	; 0x26e <Double_Click_Protection>
+ 2bc:	62 df       	rcall	.-316    	; 0x182 <Clear_Timer_2_Long_Press>
+ 2be:	80 91 65 00 	lds	r24, 0x0065
+ 2c2:	83 ff       	sbrs	r24, 3
+ 2c4:	22 c0       	rjmp	.+68     	; 0x30a <Button_Handler+0x84>
+ 2c6:	80 68       	ori	r24, 0x80	; 128
+ 2c8:	80 93 65 00 	sts	0x0065, r24
+ 2cc:	5a df       	rcall	.-332    	; 0x182 <Clear_Timer_2_Long_Press>
+ 2ce:	80 91 62 00 	lds	r24, 0x0062
+ 2d2:	82 30       	cpi	r24, 0x02	; 2
+ 2d4:	11 f4       	brne	.+4      	; 0x2da <Button_Handler+0x54>
+ 2d6:	10 92 62 00 	sts	0x0062, r1
+ 2da:	80 91 62 00 	lds	r24, 0x0062
+ 2de:	8f 5f       	subi	r24, 0xFF	; 255
+ 2e0:	80 93 62 00 	sts	0x0062, r24
+ 2e4:	81 30       	cpi	r24, 0x01	; 1
+ 2e6:	89 f4       	brne	.+34     	; 0x30a <Button_Handler+0x84>
+ 2e8:	58 df       	rcall	.-336    	; 0x19a <Clear_Timer_3_Double_Click>
+ 2ea:	90 91 65 00 	lds	r25, 0x0065
+ 2ee:	96 fd       	sbrc	r25, 6
+ 2f0:	04 c0       	rjmp	.+8      	; 0x2fa <Button_Handler+0x74>
+ 2f2:	80 e1       	ldi	r24, 0x10	; 16
+ 2f4:	89 27       	eor	r24, r25
+ 2f6:	80 93 65 00 	sts	0x0065, r24
+ 2fa:	90 91 65 00 	lds	r25, 0x0065
+ 2fe:	96 ff       	sbrs	r25, 6
+ 300:	04 c0       	rjmp	.+8      	; 0x30a <Button_Handler+0x84>
+ 302:	80 e2       	ldi	r24, 0x20	; 32
+ 304:	89 27       	eor	r24, r25
+ 306:	80 93 65 00 	sts	0x0065, r24
+ 30a:	80 91 65 00 	lds	r24, 0x0065
+ 30e:	84 ff       	sbrs	r24, 4
+ 310:	07 c0       	rjmp	.+14     	; 0x320 <Button_Handler+0x9a>
+ 312:	90 91 66 00 	lds	r25, 0x0066
+ 316:	92 ff       	sbrs	r25, 2
+ 318:	03 c0       	rjmp	.+6      	; 0x320 <Button_Handler+0x9a>
+ 31a:	88 60       	ori	r24, 0x08	; 8
+ 31c:	80 93 65 00 	sts	0x0065, r24
+ 320:	b1 9b       	sbis	0x16, 1	; 22
+ 322:	07 c0       	rjmp	.+14     	; 0x332 <Button_Handler+0xac>
+ 324:	80 91 65 00 	lds	r24, 0x0065
+ 328:	80 ff       	sbrs	r24, 0
+ 32a:	03 c0       	rjmp	.+6      	; 0x332 <Button_Handler+0xac>
+ 32c:	8e 7f       	andi	r24, 0xFE	; 254
+ 32e:	80 93 65 00 	sts	0x0065, r24
+ 332:	80 91 65 00 	lds	r24, 0x0065
+ 336:	83 ff       	sbrs	r24, 3
+ 338:	36 c0       	rjmp	.+108    	; 0x3a6 <Button_Handler+0x120>
+ 33a:	80 91 62 00 	lds	r24, 0x0062
+ 33e:	81 30       	cpi	r24, 0x01	; 1
+ 340:	a1 f4       	brne	.+40     	; 0x36a <Button_Handler+0xe4>
+ 342:	80 91 66 00 	lds	r24, 0x0066
+ 346:	82 ff       	sbrs	r24, 2
+ 348:	10 c0       	rjmp	.+32     	; 0x36a <Button_Handler+0xe4>
+ 34a:	f8 94       	cli
+ 34c:	80 91 66 00 	lds	r24, 0x0066
+ 350:	8b 7f       	andi	r24, 0xFB	; 251
+ 352:	80 93 66 00 	sts	0x0066, r24
+ 356:	78 94       	sei
+ 358:	10 92 62 00 	sts	0x0062, r1
+ 35c:	80 91 65 00 	lds	r24, 0x0065
+ 360:	86 fd       	sbrc	r24, 6
+ 362:	03 c0       	rjmp	.+6      	; 0x36a <Button_Handler+0xe4>
+ 364:	87 7f       	andi	r24, 0xF7	; 247
+ 366:	80 93 65 00 	sts	0x0065, r24
+ 36a:	80 91 62 00 	lds	r24, 0x0062
+ 36e:	82 30       	cpi	r24, 0x02	; 2
+ 370:	d1 f4       	brne	.+52     	; 0x3a6 <Button_Handler+0x120>
+ 372:	80 91 66 00 	lds	r24, 0x0066
+ 376:	82 fd       	sbrc	r24, 2
+ 378:	16 c0       	rjmp	.+44     	; 0x3a6 <Button_Handler+0x120>
+ 37a:	80 91 65 00 	lds	r24, 0x0065
+ 37e:	90 e3       	ldi	r25, 0x30	; 48
+ 380:	89 27       	eor	r24, r25
+ 382:	80 93 65 00 	sts	0x0065, r24
+ 386:	f8 94       	cli
+ 388:	80 91 66 00 	lds	r24, 0x0066
+ 38c:	8b 7f       	andi	r24, 0xFB	; 251
+ 38e:	80 93 66 00 	sts	0x0066, r24
+ 392:	78 94       	sei
+ 394:	10 92 62 00 	sts	0x0062, r1
+ 398:	80 91 65 00 	lds	r24, 0x0065
+ 39c:	86 ff       	sbrs	r24, 6
+ 39e:	03 c0       	rjmp	.+6      	; 0x3a6 <Button_Handler+0x120>
+ 3a0:	87 7f       	andi	r24, 0xF7	; 247
+ 3a2:	80 93 65 00 	sts	0x0065, r24
+ 3a6:	80 91 65 00 	lds	r24, 0x0065
+ 3aa:	83 ff       	sbrs	r24, 3
+ 3ac:	0b c0       	rjmp	.+22     	; 0x3c4 <Button_Handler+0x13e>
+ 3ae:	80 91 62 00 	lds	r24, 0x0062
+ 3b2:	81 11       	cpse	r24, r1
+ 3b4:	07 c0       	rjmp	.+14     	; 0x3c4 <Button_Handler+0x13e>
+ 3b6:	f8 94       	cli
+ 3b8:	80 91 66 00 	lds	r24, 0x0066
+ 3bc:	8b 7f       	andi	r24, 0xFB	; 251
+ 3be:	80 93 66 00 	sts	0x0066, r24
+ 3c2:	78 94       	sei
+ 3c4:	08 95       	ret
+
+000003c6 <main>:
+ 3c6:	77 de       	rcall	.-786    	; 0xb6 <MCU_Setup>
+ 3c8:	9c de       	rcall	.-712    	; 0x102 <Bypass_Mode_Checker>
+ 3ca:	78 94       	sei
+ 3cc:	5c df       	rcall	.-328    	; 0x286 <Button_Handler>
+ 3ce:	f1 de       	rcall	.-542    	; 0x1b2 <Flags_Handler>
+ 3d0:	0c df       	rcall	.-488    	; 0x1ea <Long_Click_Button_Handler>
+ 3d2:	fc cf       	rjmp	.-8      	; 0x3cc <main+0x6>
+
+000003d4 <_exit>:
+ 3d4:	f8 94       	cli
+
+000003d6 <__stop_program>:
+ 3d6:	ff cf       	rjmp	.-2      	; 0x3d6 <__stop_program>

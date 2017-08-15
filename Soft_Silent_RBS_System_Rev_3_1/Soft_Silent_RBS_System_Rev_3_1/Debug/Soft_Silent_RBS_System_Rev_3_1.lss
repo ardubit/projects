@@ -1,0 +1,1044 @@
+
+Soft_Silent_RBS_System_Rev_3_1.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000416  00000000  00000000  00000074  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .bss          00000007  00800060  00800060  0000048a  2**0
+                  ALLOC
+  2 .comment      00000030  00000000  00000000  0000048a  2**0
+                  CONTENTS, READONLY
+  3 .debug_aranges 00000088  00000000  00000000  000004ba  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_info   000007e5  00000000  00000000  00000542  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_abbrev 0000023c  00000000  00000000  00000d27  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_line   000003d9  00000000  00000000  00000f63  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_frame  00000110  00000000  00000000  0000133c  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_str    00000300  00000000  00000000  0000144c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_loc    000003af  00000000  00000000  0000174c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_ranges 00000078  00000000  00000000  00001afb  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	09 c0       	rjmp	.+18     	; 0x14 <__ctors_end>
+   2:	16 c0       	rjmp	.+44     	; 0x30 <__bad_interrupt>
+   4:	15 c0       	rjmp	.+42     	; 0x30 <__bad_interrupt>
+   6:	14 c0       	rjmp	.+40     	; 0x30 <__bad_interrupt>
+   8:	13 c0       	rjmp	.+38     	; 0x30 <__bad_interrupt>
+   a:	12 c0       	rjmp	.+36     	; 0x30 <__bad_interrupt>
+   c:	12 c0       	rjmp	.+36     	; 0x32 <__vector_6>
+   e:	10 c0       	rjmp	.+32     	; 0x30 <__bad_interrupt>
+  10:	0f c0       	rjmp	.+30     	; 0x30 <__bad_interrupt>
+  12:	0e c0       	rjmp	.+28     	; 0x30 <__bad_interrupt>
+
+00000014 <__ctors_end>:
+  14:	11 24       	eor	r1, r1
+  16:	1f be       	out	0x3f, r1	; 63
+  18:	cf e9       	ldi	r28, 0x9F	; 159
+  1a:	cd bf       	out	0x3d, r28	; 61
+
+0000001c <__do_clear_bss>:
+  1c:	20 e0       	ldi	r18, 0x00	; 0
+  1e:	a0 e6       	ldi	r26, 0x60	; 96
+  20:	b0 e0       	ldi	r27, 0x00	; 0
+  22:	01 c0       	rjmp	.+2      	; 0x26 <.do_clear_bss_start>
+
+00000024 <.do_clear_bss_loop>:
+  24:	1d 92       	st	X+, r1
+
+00000026 <.do_clear_bss_start>:
+  26:	a7 36       	cpi	r26, 0x67	; 103
+  28:	b2 07       	cpc	r27, r18
+  2a:	e1 f7       	brne	.-8      	; 0x24 <.do_clear_bss_loop>
+  2c:	e0 d1       	rcall	.+960    	; 0x3ee <main>
+  2e:	f1 c1       	rjmp	.+994    	; 0x412 <_exit>
+
+00000030 <__bad_interrupt>:
+  30:	e7 cf       	rjmp	.-50     	; 0x0 <__vectors>
+
+00000032 <__vector_6>:
+#define DRIVE_LED_OFF		PORTB &=~(1<<PB3)
+
+#define BOOST_ON			PORTB |= (1<<PB2)
+#define BOOST_OFF			PORTB &=~(1<<PB2)
+
+ISR (TIM0_COMPA_vect) {
+  32:	1f 92       	push	r1
+  34:	0f 92       	push	r0
+  36:	0f b6       	in	r0, 0x3f	; 63
+  38:	0f 92       	push	r0
+  3a:	11 24       	eor	r1, r1
+  3c:	2f 93       	push	r18
+  3e:	8f 93       	push	r24
+  40:	9f 93       	push	r25
+	
+	// Long press handling timer "One Click"
+	timer_2_counter_long_press++;
+  42:	80 91 63 00 	lds	r24, 0x0063
+  46:	90 91 64 00 	lds	r25, 0x0064
+  4a:	01 96       	adiw	r24, 0x01	; 1
+  4c:	90 93 64 00 	sts	0x0064, r25
+  50:	80 93 63 00 	sts	0x0063, r24
+	if (timer_2_counter_long_press >= LONG_PRESS_TIME)
+  54:	80 91 63 00 	lds	r24, 0x0063
+  58:	90 91 64 00 	lds	r25, 0x0064
+  5c:	88 35       	cpi	r24, 0x58	; 88
+  5e:	92 40       	sbci	r25, 0x02	; 2
+  60:	48 f0       	brcs	.+18     	; 0x74 <__SREG__+0x35>
+	{
+		timer_2_counter_long_press=0;
+  62:	10 92 64 00 	sts	0x0064, r1
+  66:	10 92 63 00 	sts	0x0063, r1
+		SET_BIT(ISR_flags,TIMER_2_LONG_PRESS);
+  6a:	80 91 66 00 	lds	r24, 0x0066
+  6e:	82 60       	ori	r24, 0x02	; 2
+  70:	80 93 66 00 	sts	0x0066, r24
+	}
+	
+	// Double click handling timer
+	timer_3_counter_double_click++;
+  74:	80 91 60 00 	lds	r24, 0x0060
+  78:	90 91 61 00 	lds	r25, 0x0061
+  7c:	01 96       	adiw	r24, 0x01	; 1
+  7e:	90 93 61 00 	sts	0x0061, r25
+  82:	80 93 60 00 	sts	0x0060, r24
+	if (timer_3_counter_double_click >= DOUBLE_CLICK_TIME)
+  86:	80 91 60 00 	lds	r24, 0x0060
+  8a:	90 91 61 00 	lds	r25, 0x0061
+  8e:	80 39       	cpi	r24, 0x90	; 144
+  90:	91 40       	sbci	r25, 0x01	; 1
+  92:	48 f0       	brcs	.+18     	; 0xa6 <__stack+0x7>
+	{
+		timer_3_counter_double_click=0;
+  94:	10 92 61 00 	sts	0x0061, r1
+  98:	10 92 60 00 	sts	0x0060, r1
+		SET_BIT(ISR_flags,TIMER_3_DOUBLE_CLICK);
+  9c:	80 91 66 00 	lds	r24, 0x0066
+  a0:	84 60       	ori	r24, 0x04	; 4
+  a2:	80 93 66 00 	sts	0x0066, r24
+	}
+}
+  a6:	9f 91       	pop	r25
+  a8:	8f 91       	pop	r24
+  aa:	2f 91       	pop	r18
+  ac:	0f 90       	pop	r0
+  ae:	0f be       	out	0x3f, r0	; 63
+  b0:	0f 90       	pop	r0
+  b2:	1f 90       	pop	r1
+  b4:	18 95       	reti
+
+000000b6 <MCU_Setup>:
+	// PB2 - LED Boost
+	// PB3 - LED Drive
+	// PB4 - Mute MOSFETs
+	// PB5 - Reset (Pull-up 10k resistor to +Vcc)
+	
+	DDRB = (1<<PB0)|(0<<PB1)|(1<<PB2)|(1<<PB3)|(1<<PB4)|(0<<PB5);
+  b6:	8d e1       	ldi	r24, 0x1D	; 29
+  b8:	87 bb       	out	0x17, r24	; 23
+	PORTB = (1<<PB1)|(1<<PB5);
+  ba:	82 e2       	ldi	r24, 0x22	; 34
+  bc:	88 bb       	out	0x18, r24	; 24
+	
+	// Analog comparator OFF
+	ACSR |= (1<<ACD);
+  be:	47 9a       	sbi	0x08, 7	; 8
+	
+	// Start timer T0 with prescaler 8
+	TCCR0B |= (1<<CS01);
+  c0:	83 b7       	in	r24, 0x33	; 51
+  c2:	82 60       	ori	r24, 0x02	; 2
+  c4:	83 bf       	out	0x33, r24	; 51
+	
+	// Enable time T0 overflow interrupt
+	TIMSK0 |= (1<<OCIE0A);
+  c6:	89 b7       	in	r24, 0x39	; 57
+  c8:	84 60       	ori	r24, 0x04	; 4
+  ca:	89 bf       	out	0x39, r24	; 57
+	
+	// Enable CTC Mode.
+	TCCR0A |= (1<<WGM01);
+  cc:	8f b5       	in	r24, 0x2f	; 47
+  ce:	82 60       	ori	r24, 0x02	; 2
+  d0:	8f bd       	out	0x2f, r24	; 47
+	
+	// T0 will overflow each 1 ms
+	OCR0A = 150;
+  d2:	86 e9       	ldi	r24, 0x96	; 150
+  d4:	86 bf       	out	0x36, r24	; 54
+	
+	// Reset timer T0 flags
+	TIFR0 = 0;
+  d6:	18 be       	out	0x38, r1	; 56
+  d8:	08 95       	ret
+
+000000da <Blinking>:
+	
+}
+
+void Blinking() {
+  da:	86 e0       	ldi	r24, 0x06	; 6
+  dc:	90 e0       	ldi	r25, 0x00	; 0
+	
+	for (int i=5; i>=0; i--)
+	{
+		LED_RED_D_TOG;
+  de:	48 e0       	ldi	r20, 0x08	; 8
+		LED_GREEN_B_TOG;
+  e0:	34 e0       	ldi	r19, 0x04	; 4
+
+void Blinking() {
+	
+	for (int i=5; i>=0; i--)
+	{
+		LED_RED_D_TOG;
+  e2:	28 b3       	in	r18, 0x18	; 24
+  e4:	24 27       	eor	r18, r20
+  e6:	28 bb       	out	0x18, r18	; 24
+		LED_GREEN_B_TOG;
+  e8:	28 b3       	in	r18, 0x18	; 24
+  ea:	23 27       	eor	r18, r19
+  ec:	28 bb       	out	0x18, r18	; 24
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+  ee:	ef e2       	ldi	r30, 0x2F	; 47
+  f0:	f5 e7       	ldi	r31, 0x75	; 117
+  f2:	31 97       	sbiw	r30, 0x01	; 1
+  f4:	f1 f7       	brne	.-4      	; 0xf2 <Blinking+0x18>
+  f6:	00 c0       	rjmp	.+0      	; 0xf8 <Blinking+0x1e>
+  f8:	00 00       	nop
+  fa:	01 97       	sbiw	r24, 0x01	; 1
+	
+}
+
+void Blinking() {
+	
+	for (int i=5; i>=0; i--)
+  fc:	00 97       	sbiw	r24, 0x00	; 0
+  fe:	89 f7       	brne	.-30     	; 0xe2 <Blinking+0x8>
+		LED_RED_D_TOG;
+		LED_GREEN_B_TOG;
+		_delay_ms(100);
+	}
+
+}
+ 100:	08 95       	ret
+
+00000102 <Click_To_Boost>:
+
+void Click_To_Boost() {
+	
+	if ( !(PINB & (1<<PB1)) )
+ 102:	b1 99       	sbic	0x16, 1	; 22
+ 104:	1c c0       	rjmp	.+56     	; 0x13e <Click_To_Boost+0x3c>
+ 106:	8b eb       	ldi	r24, 0xBB	; 187
+ 108:	94 e3       	ldi	r25, 0x34	; 52
+ 10a:	01 97       	sbiw	r24, 0x01	; 1
+ 10c:	f1 f7       	brne	.-4      	; 0x10a <Click_To_Boost+0x8>
+ 10e:	00 c0       	rjmp	.+0      	; 0x110 <Click_To_Boost+0xe>
+ 110:	00 00       	nop
+	{
+		_delay_ms(DEBOUNCE);
+		
+		if ( !(PINB & (1<<PB1)) ) 
+ 112:	b1 99       	sbic	0x16, 1	; 22
+ 114:	0f c0       	rjmp	.+30     	; 0x134 <Click_To_Boost+0x32>
+ 116:	9f eb       	ldi	r25, 0xBF	; 191
+ 118:	24 ed       	ldi	r18, 0xD4	; 212
+ 11a:	81 e0       	ldi	r24, 0x01	; 1
+ 11c:	91 50       	subi	r25, 0x01	; 1
+ 11e:	20 40       	sbci	r18, 0x00	; 0
+ 120:	80 40       	sbci	r24, 0x00	; 0
+ 122:	e1 f7       	brne	.-8      	; 0x11c <Click_To_Boost+0x1a>
+ 124:	00 c0       	rjmp	.+0      	; 0x126 <Click_To_Boost+0x24>
+ 126:	00 00       	nop
+		{
+			_delay_ms(500);
+			SET_BIT(flags,CLICK_TO_BOOST);
+ 128:	80 91 65 00 	lds	r24, 0x0065
+ 12c:	80 64       	ori	r24, 0x40	; 64
+ 12e:	80 93 65 00 	sts	0x0065, r24
+			Blinking();
+ 132:	d3 df       	rcall	.-90     	; 0xda <Blinking>
+		}
+		
+		while (!(PINB & (1<<PB1)))
+ 134:	b1 99       	sbic	0x16, 1	; 22
+ 136:	03 c0       	rjmp	.+6      	; 0x13e <Click_To_Boost+0x3c>
+			
+			// **********************************************
+			// Do nothing
+			// **********************************************
+			
+			asm("nop");
+ 138:	00 00       	nop
+			_delay_ms(500);
+			SET_BIT(flags,CLICK_TO_BOOST);
+			Blinking();
+		}
+		
+		while (!(PINB & (1<<PB1)))
+ 13a:	b1 9b       	sbis	0x16, 1	; 22
+ 13c:	fd cf       	rjmp	.-6      	; 0x138 <Click_To_Boost+0x36>
+ 13e:	08 95       	ret
+
+00000140 <Drive_ON>:
+	
+} 
+
+void Drive_ON() {
+	
+	MUTE_ON;
+ 140:	c4 9a       	sbi	0x18, 4	; 24
+ 142:	8f e5       	ldi	r24, 0x5F	; 95
+ 144:	99 e0       	ldi	r25, 0x09	; 9
+ 146:	01 97       	sbiw	r24, 0x01	; 1
+ 148:	f1 f7       	brne	.-4      	; 0x146 <Drive_ON+0x6>
+ 14a:	00 c0       	rjmp	.+0      	; 0x14c <Drive_ON+0xc>
+ 14c:	00 00       	nop
+	_delay_ms(8);
+	RELAY_ON;
+ 14e:	c0 9a       	sbi	0x18, 0	; 24
+ 150:	8f e6       	ldi	r24, 0x6F	; 111
+ 152:	97 e1       	ldi	r25, 0x17	; 23
+ 154:	01 97       	sbiw	r24, 0x01	; 1
+ 156:	f1 f7       	brne	.-4      	; 0x154 <Drive_ON+0x14>
+ 158:	00 c0       	rjmp	.+0      	; 0x15a <Drive_ON+0x1a>
+ 15a:	00 00       	nop
+	_delay_ms(20);
+	DRIVE_LED_ON;
+ 15c:	c3 9a       	sbi	0x18, 3	; 24
+	MUTE_OFF;
+ 15e:	c4 98       	cbi	0x18, 4	; 24
+ 160:	08 95       	ret
+
+00000162 <Drive_OFF>:
+		
+}
+
+void Drive_OFF() {
+	
+	MUTE_ON;
+ 162:	c4 9a       	sbi	0x18, 4	; 24
+ 164:	8f e5       	ldi	r24, 0x5F	; 95
+ 166:	99 e0       	ldi	r25, 0x09	; 9
+ 168:	01 97       	sbiw	r24, 0x01	; 1
+ 16a:	f1 f7       	brne	.-4      	; 0x168 <Drive_OFF+0x6>
+ 16c:	00 c0       	rjmp	.+0      	; 0x16e <Drive_OFF+0xc>
+ 16e:	00 00       	nop
+	_delay_ms(8);
+	RELAY_OFF;
+ 170:	c0 98       	cbi	0x18, 0	; 24
+ 172:	8f e6       	ldi	r24, 0x6F	; 111
+ 174:	97 e1       	ldi	r25, 0x17	; 23
+ 176:	01 97       	sbiw	r24, 0x01	; 1
+ 178:	f1 f7       	brne	.-4      	; 0x176 <Drive_OFF+0x14>
+ 17a:	00 c0       	rjmp	.+0      	; 0x17c <Drive_OFF+0x1a>
+ 17c:	00 00       	nop
+	_delay_ms(20);
+	DRIVE_LED_OFF;
+ 17e:	c3 98       	cbi	0x18, 3	; 24
+	MUTE_OFF;
+ 180:	c4 98       	cbi	0x18, 4	; 24
+ 182:	08 95       	ret
+
+00000184 <Clear_Timer_2_Long_Press>:
+    return 1;
+}
+
+static __inline__ uint8_t __iCliRetVal(void)
+{
+    cli();
+ 184:	f8 94       	cli
+void Clear_Timer_2_Long_Press() {
+	
+	// Clear "One Click" long press handling timer
+	ATOMIC_BLOCK(ATOMIC_FORCEON)
+	{
+		timer_2_counter_long_press=0;
+ 186:	10 92 64 00 	sts	0x0064, r1
+ 18a:	10 92 63 00 	sts	0x0063, r1
+		CLR_BIT(ISR_flags,TIMER_2_LONG_PRESS);
+ 18e:	80 91 66 00 	lds	r24, 0x0066
+ 192:	8d 7f       	andi	r24, 0xFD	; 253
+ 194:	80 93 66 00 	sts	0x0066, r24
+    return 1;
+}
+
+static __inline__ void __iSeiParam(const uint8_t *__s)
+{
+    sei();
+ 198:	78 94       	sei
+    __asm__ volatile ("" ::: "memory");
+ 19a:	08 95       	ret
+
+0000019c <Clear_Timer_3_Double_Click>:
+    return 1;
+}
+
+static __inline__ uint8_t __iCliRetVal(void)
+{
+    cli();
+ 19c:	f8 94       	cli
+void Clear_Timer_3_Double_Click()
+{
+	// Clear double click handling timer
+	ATOMIC_BLOCK(ATOMIC_FORCEON)
+	{
+		timer_3_counter_double_click=0;
+ 19e:	10 92 61 00 	sts	0x0061, r1
+ 1a2:	10 92 60 00 	sts	0x0060, r1
+		CLR_BIT(ISR_flags,TIMER_3_DOUBLE_CLICK);
+ 1a6:	80 91 66 00 	lds	r24, 0x0066
+ 1aa:	8b 7f       	andi	r24, 0xFB	; 251
+ 1ac:	80 93 66 00 	sts	0x0066, r24
+    return 1;
+}
+
+static __inline__ void __iSeiParam(const uint8_t *__s)
+{
+    sei();
+ 1b0:	78 94       	sei
+    __asm__ volatile ("" ::: "memory");
+ 1b2:	08 95       	ret
+
+000001b4 <Flags_Handler>:
+	
+	// **********************************************
+	// Bypass
+	// **********************************************
+	
+	if ( CHK_BIT(flags,DRIVE) && (!CHK_BIT(flags,DRIVE_LATCH)) )
+ 1b4:	80 91 65 00 	lds	r24, 0x0065
+ 1b8:	81 ff       	sbrs	r24, 1
+ 1ba:	0a c0       	rjmp	.+20     	; 0x1d0 <Flags_Handler+0x1c>
+ 1bc:	82 fd       	sbrc	r24, 2
+ 1be:	0e c0       	rjmp	.+28     	; 0x1dc <Flags_Handler+0x28>
+	{
+		SET_BIT(flags,DRIVE_LATCH);
+ 1c0:	84 60       	ori	r24, 0x04	; 4
+ 1c2:	80 93 65 00 	sts	0x0065, r24
+		Drive_ON();
+ 1c6:	bc df       	rcall	.-136    	; 0x140 <Drive_ON>
+	}
+	
+	if ( !CHK_BIT(flags,DRIVE) && (CHK_BIT(flags,DRIVE_LATCH)) )
+ 1c8:	80 91 65 00 	lds	r24, 0x0065
+ 1cc:	81 fd       	sbrc	r24, 1
+ 1ce:	06 c0       	rjmp	.+12     	; 0x1dc <Flags_Handler+0x28>
+ 1d0:	82 ff       	sbrs	r24, 2
+ 1d2:	04 c0       	rjmp	.+8      	; 0x1dc <Flags_Handler+0x28>
+	{
+		CLR_BIT(flags,DRIVE_LATCH);
+ 1d4:	8b 7f       	andi	r24, 0xFB	; 251
+ 1d6:	80 93 65 00 	sts	0x0065, r24
+		Drive_OFF();
+ 1da:	c3 df       	rcall	.-122    	; 0x162 <Drive_OFF>
+	
+	// **********************************************
+	// Boost
+	// **********************************************
+	
+	if ( CHK_BIT(flags,BOOST) )
+ 1dc:	80 91 65 00 	lds	r24, 0x0065
+ 1e0:	84 ff       	sbrs	r24, 4
+ 1e2:	02 c0       	rjmp	.+4      	; 0x1e8 <Flags_Handler+0x34>
+	{
+		BOOST_ON;
+ 1e4:	c2 9a       	sbi	0x18, 2	; 24
+ 1e6:	08 95       	ret
+	}
+	else
+	{
+		BOOST_OFF;
+ 1e8:	c2 98       	cbi	0x18, 2	; 24
+ 1ea:	08 95       	ret
+
+000001ec <Long_Click_Handler>:
+	
+}
+
+void Long_Click_Handler() {
+	
+	if ( !(PINB & (1<<PB1)) && (!CHK_BIT(flags,ONECKICK_LATCH)) && (CHK_BIT(ISR_flags,TIMER_2_LONG_PRESS)) )
+ 1ec:	b1 99       	sbic	0x16, 1	; 22
+ 1ee:	20 c0       	rjmp	.+64     	; 0x230 <Long_Click_Handler+0x44>
+ 1f0:	80 91 65 00 	lds	r24, 0x0065
+ 1f4:	83 fd       	sbrc	r24, 3
+ 1f6:	1c c0       	rjmp	.+56     	; 0x230 <Long_Click_Handler+0x44>
+ 1f8:	90 91 66 00 	lds	r25, 0x0066
+ 1fc:	91 ff       	sbrs	r25, 1
+ 1fe:	18 c0       	rjmp	.+48     	; 0x230 <Long_Click_Handler+0x44>
+	{
+		SET_BIT(flags,ONECKICK_LATCH);
+ 200:	98 2f       	mov	r25, r24
+ 202:	98 60       	ori	r25, 0x08	; 8
+		
+		// Check "Click To Boost" Bit
+		// Default Mode
+		
+		if ( !CHK_BIT(flags,CLICK_TO_BOOST) )
+ 204:	86 ff       	sbrs	r24, 6
+ 206:	03 c0       	rjmp	.+6      	; 0x20e <Long_Click_Handler+0x22>
+
+void Long_Click_Handler() {
+	
+	if ( !(PINB & (1<<PB1)) && (!CHK_BIT(flags,ONECKICK_LATCH)) && (CHK_BIT(ISR_flags,TIMER_2_LONG_PRESS)) )
+	{
+		SET_BIT(flags,ONECKICK_LATCH);
+ 208:	90 93 65 00 	sts	0x0065, r25
+ 20c:	04 c0       	rjmp	.+8      	; 0x216 <Long_Click_Handler+0x2a>
+		// Check "Click To Boost" Bit
+		// Default Mode
+		
+		if ( !CHK_BIT(flags,CLICK_TO_BOOST) )
+		{
+			TOG_BIT(flags,DRIVE);
+ 20e:	82 e0       	ldi	r24, 0x02	; 2
+ 210:	98 27       	eor	r25, r24
+ 212:	90 93 65 00 	sts	0x0065, r25
+		}
+		
+		// Click To Boost Mode
+		
+		if ( (CHK_BIT(flags,CLICK_TO_BOOST)) )
+ 216:	80 91 65 00 	lds	r24, 0x0065
+ 21a:	86 ff       	sbrs	r24, 6
+ 21c:	04 c0       	rjmp	.+8      	; 0x226 <Long_Click_Handler+0x3a>
+		{
+			TOG_BIT(flags,BOOST);
+ 21e:	90 e1       	ldi	r25, 0x10	; 16
+ 220:	89 27       	eor	r24, r25
+ 222:	80 93 65 00 	sts	0x0065, r24
+		}
+				
+		// **********************************************
+		
+		while ( !(PINB & (1<<PB1)) )
+ 226:	b1 99       	sbic	0x16, 1	; 22
+ 228:	03 c0       	rjmp	.+6      	; 0x230 <Long_Click_Handler+0x44>
+			
+			// **********************************************
+			// Do nothing
+			// **********************************************
+			
+			asm("nop");
+ 22a:	00 00       	nop
+			TOG_BIT(flags,BOOST);
+		}
+				
+		// **********************************************
+		
+		while ( !(PINB & (1<<PB1)) )
+ 22c:	b1 9b       	sbis	0x16, 1	; 22
+ 22e:	fd cf       	rjmp	.-6      	; 0x22a <Long_Click_Handler+0x3e>
+		
+	}
+	
+	// Button release
+	
+	if ( (PINB & (1<<PB1)) && (CHK_BIT(flags,ONECKICK_LATCH)) )
+ 230:	b1 9b       	sbis	0x16, 1	; 22
+ 232:	0d c0       	rjmp	.+26     	; 0x24e <Long_Click_Handler+0x62>
+ 234:	80 91 65 00 	lds	r24, 0x0065
+ 238:	83 ff       	sbrs	r24, 3
+ 23a:	09 c0       	rjmp	.+18     	; 0x24e <Long_Click_Handler+0x62>
+	{
+		CLR_BIT(flags,ONECKICK_LATCH);
+ 23c:	87 7f       	andi	r24, 0xF7	; 247
+ 23e:	80 93 65 00 	sts	0x0065, r24
+ 242:	8b e4       	ldi	r24, 0x4B	; 75
+ 244:	9d e1       	ldi	r25, 0x1D	; 29
+ 246:	01 97       	sbiw	r24, 0x01	; 1
+ 248:	f1 f7       	brne	.-4      	; 0x246 <Long_Click_Handler+0x5a>
+ 24a:	00 c0       	rjmp	.+0      	; 0x24c <Long_Click_Handler+0x60>
+ 24c:	00 00       	nop
+		_delay_ms(DEBOUNCE_FAST);
+	}
+	
+	// Clear "One Click" timer bit
+	
+	if ( PINB & (1<<PB1) ) 
+ 24e:	b1 9b       	sbis	0x16, 1	; 22
+ 250:	07 c0       	rjmp	.+14     	; 0x260 <Long_Click_Handler+0x74>
+    return 1;
+}
+
+static __inline__ uint8_t __iCliRetVal(void)
+{
+    cli();
+ 252:	f8 94       	cli
+	{
+		
+		ATOMIC_BLOCK(ATOMIC_FORCEON)
+		{
+			CLR_BIT(ISR_flags,TIMER_2_LONG_PRESS);
+ 254:	80 91 66 00 	lds	r24, 0x0066
+ 258:	8d 7f       	andi	r24, 0xFD	; 253
+ 25a:	80 93 66 00 	sts	0x0066, r24
+    return 1;
+}
+
+static __inline__ void __iSeiParam(const uint8_t *__s)
+{
+    sei();
+ 25e:	78 94       	sei
+    __asm__ volatile ("" ::: "memory");
+ 260:	08 95       	ret
+
+00000262 <Double_Click_Handler>:
+	
+}
+
+void Double_Click_Handler() {
+	
+	if ( !(PINB & (1<<PB1)) )
+ 262:	b1 99       	sbic	0x16, 1	; 22
+ 264:	2c c0       	rjmp	.+88     	; 0x2be <Double_Click_Handler+0x5c>
+ 266:	8b e4       	ldi	r24, 0x4B	; 75
+ 268:	9d e1       	ldi	r25, 0x1D	; 29
+ 26a:	01 97       	sbiw	r24, 0x01	; 1
+ 26c:	f1 f7       	brne	.-4      	; 0x26a <Double_Click_Handler+0x8>
+ 26e:	00 c0       	rjmp	.+0      	; 0x270 <Double_Click_Handler+0xe>
+ 270:	00 00       	nop
+	{
+		_delay_ms(DEBOUNCE_FAST);
+		
+		if ( !(PINB & (1<<PB1)) && (!CHK_BIT(flags,BUTTON_LATCH)) )
+ 272:	b1 99       	sbic	0x16, 1	; 22
+ 274:	24 c0       	rjmp	.+72     	; 0x2be <Double_Click_Handler+0x5c>
+ 276:	80 91 65 00 	lds	r24, 0x0065
+ 27a:	80 fd       	sbrc	r24, 0
+ 27c:	20 c0       	rjmp	.+64     	; 0x2be <Double_Click_Handler+0x5c>
+		{
+			SET_BIT(flags,BUTTON_LATCH);
+ 27e:	81 60       	ori	r24, 0x01	; 1
+ 280:	80 93 65 00 	sts	0x0065, r24
+			
+			// Clear "One Click" long press handling timer
+			
+			Clear_Timer_2_Long_Press();
+ 284:	7f df       	rcall	.-258    	; 0x184 <Clear_Timer_2_Long_Press>
+			
+			// **********************************************
+			// Reset clicks counter if reached max
+			// **********************************************
+			
+			if (click_counter == 2)
+ 286:	80 91 62 00 	lds	r24, 0x0062
+ 28a:	82 30       	cpi	r24, 0x02	; 2
+ 28c:	21 f4       	brne	.+8      	; 0x296 <Double_Click_Handler+0x34>
+			
+			// **********************************************
+			// Lets start count clicks
+			// **********************************************
+			
+			click_counter++;
+ 28e:	81 e0       	ldi	r24, 0x01	; 1
+ 290:	80 93 62 00 	sts	0x0062, r24
+ 294:	05 c0       	rjmp	.+10     	; 0x2a0 <Double_Click_Handler+0x3e>
+ 296:	8f 5f       	subi	r24, 0xFF	; 255
+ 298:	80 93 62 00 	sts	0x0062, r24
+			
+			// **********************************************
+			// If it's first click toggle a Drive bit
+			// **********************************************
+			
+			if (click_counter == 1)
+ 29c:	81 30       	cpi	r24, 0x01	; 1
+ 29e:	79 f4       	brne	.+30     	; 0x2be <Double_Click_Handler+0x5c>
+			{
+				
+				// Check "Click To Boost" Bit
+				
+				if ( !(CHK_BIT(flags,CLICK_TO_BOOST)) )
+ 2a0:	80 91 65 00 	lds	r24, 0x0065
+ 2a4:	86 fd       	sbrc	r24, 6
+ 2a6:	06 c0       	rjmp	.+12     	; 0x2b4 <Double_Click_Handler+0x52>
+				{
+					TOG_BIT(flags,DRIVE);
+ 2a8:	92 e0       	ldi	r25, 0x02	; 2
+ 2aa:	89 27       	eor	r24, r25
+ 2ac:	80 93 65 00 	sts	0x0065, r24
+				}
+				
+				if ( (CHK_BIT(flags,CLICK_TO_BOOST)) )
+ 2b0:	86 ff       	sbrs	r24, 6
+ 2b2:	4e c0       	rjmp	.+156    	; 0x350 <Double_Click_Handler+0xee>
+				{
+					TOG_BIT(flags,BOOST);
+ 2b4:	90 e1       	ldi	r25, 0x10	; 16
+ 2b6:	89 27       	eor	r24, r25
+ 2b8:	80 93 65 00 	sts	0x0065, r24
+ 2bc:	49 c0       	rjmp	.+146    	; 0x350 <Double_Click_Handler+0xee>
+		
+	}
+	
+	// Button release
+	
+	if ( (PINB & (1<<PB1)) && (CHK_BIT(flags,BUTTON_LATCH)) )
+ 2be:	b1 9b       	sbis	0x16, 1	; 22
+ 2c0:	07 c0       	rjmp	.+14     	; 0x2d0 <Double_Click_Handler+0x6e>
+ 2c2:	80 91 65 00 	lds	r24, 0x0065
+ 2c6:	80 ff       	sbrs	r24, 0
+ 2c8:	03 c0       	rjmp	.+6      	; 0x2d0 <Double_Click_Handler+0x6e>
+	{
+		CLR_BIT(flags,BUTTON_LATCH);
+ 2ca:	8e 7f       	andi	r24, 0xFE	; 254
+ 2cc:	80 93 65 00 	sts	0x0065, r24
+	
+	// **********************************************
+	// Analyzer 
+	// **********************************************
+	
+	if ( (click_counter == 1) && (CHK_BIT(ISR_flags,TIMER_3_DOUBLE_CLICK)) )
+ 2d0:	80 91 62 00 	lds	r24, 0x0062
+ 2d4:	81 30       	cpi	r24, 0x01	; 1
+ 2d6:	91 f4       	brne	.+36     	; 0x2fc <Double_Click_Handler+0x9a>
+ 2d8:	80 91 66 00 	lds	r24, 0x0066
+ 2dc:	82 ff       	sbrs	r24, 2
+ 2de:	3a c0       	rjmp	.+116    	; 0x354 <Double_Click_Handler+0xf2>
+    return 1;
+}
+
+static __inline__ uint8_t __iCliRetVal(void)
+{
+    cli();
+ 2e0:	f8 94       	cli
+	{
+		ATOMIC_BLOCK(ATOMIC_FORCEON)
+		{
+		CLR_BIT(ISR_flags,TIMER_3_DOUBLE_CLICK);
+ 2e2:	80 91 66 00 	lds	r24, 0x0066
+ 2e6:	8b 7f       	andi	r24, 0xFB	; 251
+ 2e8:	80 93 66 00 	sts	0x0066, r24
+		click_counter=0;
+ 2ec:	10 92 62 00 	sts	0x0062, r1
+    return 1;
+}
+
+static __inline__ void __iSeiParam(const uint8_t *__s)
+{
+    sei();
+ 2f0:	78 94       	sei
+		}
+		
+		CLR_BIT(flags,MODE_LATCH);
+ 2f2:	80 91 65 00 	lds	r24, 0x0065
+ 2f6:	8f 7d       	andi	r24, 0xDF	; 223
+ 2f8:	80 93 65 00 	sts	0x0065, r24
+		
+	}
+	
+	if ( (click_counter == 2) && (!CHK_BIT(ISR_flags,TIMER_3_DOUBLE_CLICK)) )
+ 2fc:	80 91 62 00 	lds	r24, 0x0062
+ 300:	82 30       	cpi	r24, 0x02	; 2
+ 302:	d1 f4       	brne	.+52     	; 0x338 <Double_Click_Handler+0xd6>
+ 304:	80 91 66 00 	lds	r24, 0x0066
+ 308:	82 fd       	sbrc	r24, 2
+ 30a:	24 c0       	rjmp	.+72     	; 0x354 <Double_Click_Handler+0xf2>
+		
+		// Got two clicks in time, so it's a double click action
+		TOG_BIT(flags,BOOST);
+		
+		// Turn back relay
+		TOG_BIT(flags,DRIVE);
+ 30c:	90 91 65 00 	lds	r25, 0x0065
+ 310:	82 e1       	ldi	r24, 0x12	; 18
+ 312:	89 27       	eor	r24, r25
+ 314:	80 93 65 00 	sts	0x0065, r24
+    return 1;
+}
+
+static __inline__ uint8_t __iCliRetVal(void)
+{
+    cli();
+ 318:	f8 94       	cli
+		
+		ATOMIC_BLOCK(ATOMIC_FORCEON)
+		{
+		CLR_BIT(ISR_flags,TIMER_3_DOUBLE_CLICK);
+ 31a:	80 91 66 00 	lds	r24, 0x0066
+ 31e:	8b 7f       	andi	r24, 0xFB	; 251
+ 320:	80 93 66 00 	sts	0x0066, r24
+		click_counter=0;
+ 324:	10 92 62 00 	sts	0x0062, r1
+    return 1;
+}
+
+static __inline__ void __iSeiParam(const uint8_t *__s)
+{
+    sei();
+ 328:	78 94       	sei
+		}
+		
+		// If we have "Click To Boost Mode" go out from here
+		if ( (CHK_BIT(flags,CLICK_TO_BOOST)) )
+ 32a:	80 91 65 00 	lds	r24, 0x0065
+ 32e:	86 ff       	sbrs	r24, 6
+ 330:	03 c0       	rjmp	.+6      	; 0x338 <Double_Click_Handler+0xd6>
+		{
+			CLR_BIT(flags,MODE_LATCH);
+ 332:	8f 7d       	andi	r24, 0xDF	; 223
+ 334:	80 93 65 00 	sts	0x0065, r24
+		
+	}
+	
+	// Keep double click timer bit clear
+	
+	if (click_counter == 0) 
+ 338:	80 91 62 00 	lds	r24, 0x0062
+ 33c:	81 11       	cpse	r24, r1
+ 33e:	0a c0       	rjmp	.+20     	; 0x354 <Double_Click_Handler+0xf2>
+    return 1;
+}
+
+static __inline__ uint8_t __iCliRetVal(void)
+{
+    cli();
+ 340:	f8 94       	cli
+	{
+		ATOMIC_BLOCK(ATOMIC_FORCEON)
+		{
+		CLR_BIT(ISR_flags,TIMER_3_DOUBLE_CLICK);
+ 342:	80 91 66 00 	lds	r24, 0x0066
+ 346:	8b 7f       	andi	r24, 0xFB	; 251
+ 348:	80 93 66 00 	sts	0x0066, r24
+    return 1;
+}
+
+static __inline__ void __iSeiParam(const uint8_t *__s)
+{
+    sei();
+ 34c:	78 94       	sei
+    __asm__ volatile ("" ::: "memory");
+ 34e:	08 95       	ret
+			// Start count time for double click
+			// **********************************************
+			
+			if (click_counter == 1)
+			{
+				Clear_Timer_3_Double_Click();
+ 350:	25 df       	rcall	.-438    	; 0x19c <Clear_Timer_3_Double_Click>
+ 352:	b5 cf       	rjmp	.-150    	; 0x2be <Double_Click_Handler+0x5c>
+ 354:	08 95       	ret
+
+00000356 <Double_Click_Protection>:
+    return 1;
+}
+
+static __inline__ uint8_t __iCliRetVal(void)
+{
+    cli();
+ 356:	f8 94       	cli
+	
+	// Clear double click handling timer
+	
+	ATOMIC_BLOCK(ATOMIC_FORCEON)
+	{
+		timer_3_counter_double_click=0;
+ 358:	10 92 61 00 	sts	0x0061, r1
+ 35c:	10 92 60 00 	sts	0x0060, r1
+		CLR_BIT(ISR_flags,TIMER_3_DOUBLE_CLICK);
+ 360:	80 91 66 00 	lds	r24, 0x0066
+ 364:	8b 7f       	andi	r24, 0xFB	; 251
+ 366:	80 93 66 00 	sts	0x0066, r24
+    return 1;
+}
+
+static __inline__ void __iSeiParam(const uint8_t *__s)
+{
+    sei();
+ 36a:	78 94       	sei
+    __asm__ volatile ("" ::: "memory");
+ 36c:	08 95       	ret
+
+0000036e <Button_Handler>:
+	
+}
+
+void Button_Handler() {
+	
+	if ( !(PINB & (1<<PB1)) )
+ 36e:	b1 99       	sbic	0x16, 1	; 22
+ 370:	29 c0       	rjmp	.+82     	; 0x3c4 <Button_Handler+0x56>
+ 372:	8b eb       	ldi	r24, 0xBB	; 187
+ 374:	94 e3       	ldi	r25, 0x34	; 52
+ 376:	01 97       	sbiw	r24, 0x01	; 1
+ 378:	f1 f7       	brne	.-4      	; 0x376 <Button_Handler+0x8>
+ 37a:	00 c0       	rjmp	.+0      	; 0x37c <Button_Handler+0xe>
+ 37c:	00 00       	nop
+	{
+		_delay_ms(DEBOUNCE);
+		
+		if ( !(PINB & (1<<PB1)) && (!CHK_BIT(flags,BUTTON_LATCH)) )
+ 37e:	b1 99       	sbic	0x16, 1	; 22
+ 380:	21 c0       	rjmp	.+66     	; 0x3c4 <Button_Handler+0x56>
+ 382:	80 91 65 00 	lds	r24, 0x0065
+ 386:	80 fd       	sbrc	r24, 0
+ 388:	1d c0       	rjmp	.+58     	; 0x3c4 <Button_Handler+0x56>
+		{
+			SET_BIT(flags,BUTTON_LATCH);
+ 38a:	98 2f       	mov	r25, r24
+ 38c:	91 60       	ori	r25, 0x01	; 1
+			
+			// Default Mode
+			
+			if ( !(CHK_BIT(flags,CLICK_TO_BOOST)) )
+ 38e:	86 ff       	sbrs	r24, 6
+ 390:	03 c0       	rjmp	.+6      	; 0x398 <Button_Handler+0x2a>
+	{
+		_delay_ms(DEBOUNCE);
+		
+		if ( !(PINB & (1<<PB1)) && (!CHK_BIT(flags,BUTTON_LATCH)) )
+		{
+			SET_BIT(flags,BUTTON_LATCH);
+ 392:	90 93 65 00 	sts	0x0065, r25
+ 396:	04 c0       	rjmp	.+8      	; 0x3a0 <Button_Handler+0x32>
+			
+			// Default Mode
+			
+			if ( !(CHK_BIT(flags,CLICK_TO_BOOST)) )
+			{
+				TOG_BIT(flags,DRIVE);
+ 398:	82 e0       	ldi	r24, 0x02	; 2
+ 39a:	98 27       	eor	r25, r24
+ 39c:	90 93 65 00 	sts	0x0065, r25
+			}
+			
+			// CLick To Boost Mode
+				
+			if ( CHK_BIT(flags,CLICK_TO_BOOST) )
+ 3a0:	80 91 65 00 	lds	r24, 0x0065
+ 3a4:	86 ff       	sbrs	r24, 6
+ 3a6:	0c c0       	rjmp	.+24     	; 0x3c0 <Button_Handler+0x52>
+			{
+				
+				if ( CHK_BIT(flags,MODE_LATCH) )
+ 3a8:	85 ff       	sbrs	r24, 5
+ 3aa:	06 c0       	rjmp	.+12     	; 0x3b8 <Button_Handler+0x4a>
+				{
+					TOG_BIT(flags,BOOST);
+ 3ac:	90 e1       	ldi	r25, 0x10	; 16
+ 3ae:	89 27       	eor	r24, r25
+ 3b0:	80 93 65 00 	sts	0x0065, r24
+				}
+				
+				if ( !CHK_BIT(flags,MODE_LATCH) )
+ 3b4:	85 fd       	sbrc	r24, 5
+ 3b6:	04 c0       	rjmp	.+8      	; 0x3c0 <Button_Handler+0x52>
+				{
+					TOG_BIT(flags,DRIVE);
+ 3b8:	92 e0       	ldi	r25, 0x02	; 2
+ 3ba:	89 27       	eor	r24, r25
+ 3bc:	80 93 65 00 	sts	0x0065, r24
+				}
+				
+			}
+			
+			//Launch double click protection
+			Double_Click_Protection();
+ 3c0:	ca df       	rcall	.-108    	; 0x356 <Double_Click_Protection>
+			
+			// Clear "One Click" long press handling timer
+			Clear_Timer_2_Long_Press();
+ 3c2:	e0 de       	rcall	.-576    	; 0x184 <Clear_Timer_2_Long_Press>
+		
+	}
+	
+	// Set mode latch if protection time is lost
+	
+	if ( (CHK_BIT(flags,DRIVE)) && (CHK_BIT(ISR_flags,TIMER_3_DOUBLE_CLICK)) )
+ 3c4:	80 91 65 00 	lds	r24, 0x0065
+ 3c8:	81 ff       	sbrs	r24, 1
+ 3ca:	07 c0       	rjmp	.+14     	; 0x3da <Button_Handler+0x6c>
+ 3cc:	90 91 66 00 	lds	r25, 0x0066
+ 3d0:	92 ff       	sbrs	r25, 2
+ 3d2:	03 c0       	rjmp	.+6      	; 0x3da <Button_Handler+0x6c>
+	{
+		SET_BIT(flags,MODE_LATCH);
+ 3d4:	80 62       	ori	r24, 0x20	; 32
+ 3d6:	80 93 65 00 	sts	0x0065, r24
+	}
+	
+	// Button release
+	
+	if ( (PINB & (1<<PB1)) && (CHK_BIT(flags,BUTTON_LATCH)) )
+ 3da:	b1 9b       	sbis	0x16, 1	; 22
+ 3dc:	07 c0       	rjmp	.+14     	; 0x3ec <Button_Handler+0x7e>
+ 3de:	80 91 65 00 	lds	r24, 0x0065
+ 3e2:	80 ff       	sbrs	r24, 0
+ 3e4:	03 c0       	rjmp	.+6      	; 0x3ec <Button_Handler+0x7e>
+	{
+		CLR_BIT(flags,BUTTON_LATCH);
+ 3e6:	8e 7f       	andi	r24, 0xFE	; 254
+ 3e8:	80 93 65 00 	sts	0x0065, r24
+ 3ec:	08 95       	ret
+
+000003ee <main>:
+}
+
+int main(void)
+{
+	
+	MCU_Setup();
+ 3ee:	63 de       	rcall	.-826    	; 0xb6 <MCU_Setup>
+	Click_To_Boost();
+ 3f0:	88 de       	rcall	.-752    	; 0x102 <Click_To_Boost>
+	sei();
+ 3f2:	78 94       	sei
+	
+	while(1)
+	{
+		
+		Button_Handler();
+ 3f4:	bc df       	rcall	.-136    	; 0x36e <Button_Handler>
+		Flags_Handler();
+ 3f6:	de de       	rcall	.-580    	; 0x1b4 <Flags_Handler>
+		Long_Click_Handler();
+ 3f8:	f9 de       	rcall	.-526    	; 0x1ec <Long_Click_Handler>
+		
+		// **********************************************
+		// If we have "Drive" mode, lets call double click handler function
+		// **********************************************
+		
+		while ( (CHK_BIT(flags,MODE_LATCH)) )
+ 3fa:	80 91 65 00 	lds	r24, 0x0065
+ 3fe:	85 ff       	sbrs	r24, 5
+ 400:	f9 cf       	rjmp	.-14     	; 0x3f4 <main+0x6>
+		{
+			Double_Click_Handler();
+ 402:	2f df       	rcall	.-418    	; 0x262 <Double_Click_Handler>
+			Flags_Handler();
+ 404:	d7 de       	rcall	.-594    	; 0x1b4 <Flags_Handler>
+			Long_Click_Handler();
+ 406:	f2 de       	rcall	.-540    	; 0x1ec <Long_Click_Handler>
+		
+		// **********************************************
+		// If we have "Drive" mode, lets call double click handler function
+		// **********************************************
+		
+		while ( (CHK_BIT(flags,MODE_LATCH)) )
+ 408:	80 91 65 00 	lds	r24, 0x0065
+ 40c:	85 fd       	sbrc	r24, 5
+ 40e:	f9 cf       	rjmp	.-14     	; 0x402 <main+0x14>
+ 410:	f1 cf       	rjmp	.-30     	; 0x3f4 <main+0x6>
+
+00000412 <_exit>:
+ 412:	f8 94       	cli
+
+00000414 <__stop_program>:
+ 414:	ff cf       	rjmp	.-2      	; 0x414 <__stop_program>

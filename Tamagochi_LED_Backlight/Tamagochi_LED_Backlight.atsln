@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Atmel Studio Solution File, Format Version 11.00
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "Tamagochi_LED_backlight", "Tamagochi_LED_backlight\Tamagochi_LED_backlight.cproj", "{BCCD6F50-9FDA-4D41-AC6E-556A40AB6CD8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|AVR = Debug|AVR
+		Release|AVR = Release|AVR
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BCCD6F50-9FDA-4D41-AC6E-556A40AB6CD8}.Debug|AVR.ActiveCfg = Debug|AVR
+		{BCCD6F50-9FDA-4D41-AC6E-556A40AB6CD8}.Debug|AVR.Build.0 = Debug|AVR
+		{BCCD6F50-9FDA-4D41-AC6E-556A40AB6CD8}.Release|AVR.ActiveCfg = Release|AVR
+		{BCCD6F50-9FDA-4D41-AC6E-556A40AB6CD8}.Release|AVR.Build.0 = Release|AVR
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
