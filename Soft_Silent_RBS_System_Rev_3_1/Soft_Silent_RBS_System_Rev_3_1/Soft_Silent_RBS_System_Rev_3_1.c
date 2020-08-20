@@ -32,23 +32,23 @@ uint8_t click_counter;
 
 // Bits in the general variable flags
 #define BUTTON_LATCH 		0		// Bit 0
-#define DRIVE_LATCH			1		// Bit 2
+#define DRIVE_LATCH		1		// Bit 2
 #define ONECLICK_MODE_LATCH	2		// Bit 3
 #define DRIVE_MODE_LATCH	3		// Bit 5
-#define DRIVE				4		// Bit 1
-#define BOOST				5		// Bit 4
+#define DRIVE			4		// Bit 1
+#define BOOST			5		// Bit 4
 #define CLICK_TO_BOOST		6		// Bit 6
-#define TIP_MODE			7		// Bit 7
+#define TIP_MODE		7		// Bit 7
 
 #define BUTTON_PRESSED !(PINB & (1<<PB1))
 
-									// Click - 160 ms
+						// Click - 160 ms
 #define LONG_PRESS_TIME		600		// ms
 #define DOUBLE_CLICK_TIME	400		// ms
-#define DEBOUNCE			45		// ms
+#define DEBOUNCE		45		// ms
 #define DEBOUNCE_FAST		25		// ms
-#define MUTE_DELAY			8		// ms
-#define RELAY_DELAY			20		// ms
+#define MUTE_DELAY		8		// ms
+#define RELAY_DELAY		20		// ms
 
 #define LED_GREEN_B_TOG		PORTB ^= (1<<PB2)
 #define LED_GREEN_B_ON		PORTB |= (1<<PB2)
@@ -58,21 +58,21 @@ uint8_t click_counter;
 #define LED_RED_D_ON		PORTB |= (1<<PB3)
 #define LED_RED_D_OFF		PORTB &=~(1<<PB3)
 
-#define RELAY_TOG			PORTB ^= (1<<PB0)
-#define RELAY_ON			PORTB |= (1<<PB0)
-#define RELAY_OFF			PORTB &=~(1<<PB0)
+#define RELAY_TOG		PORTB ^= (1<<PB0)
+#define RELAY_ON		PORTB |= (1<<PB0)
+#define RELAY_OFF		PORTB &=~(1<<PB0)
 
-#define RELAY_ON			PORTB |= (1<<PB0)
-#define RELAY_OFF			PORTB &=~(1<<PB0)
+#define RELAY_ON		PORTB |= (1<<PB0)
+#define RELAY_OFF		PORTB &=~(1<<PB0)
 
-#define MUTE_ON				PORTB |= (1<<PB4)
-#define MUTE_OFF			PORTB &=~(1<<PB4)
+#define MUTE_ON			PORTB |= (1<<PB4)
+#define MUTE_OFF		PORTB &=~(1<<PB4)
 
 #define DRIVE_LED_ON		PORTB |= (1<<PB3)
 #define DRIVE_LED_OFF		PORTB &=~(1<<PB3)
 
-#define BOOST_ON			PORTB |= (1<<PB2)
-#define BOOST_OFF			PORTB &=~(1<<PB2)
+#define BOOST_ON		PORTB |= (1<<PB2)
+#define BOOST_OFF		PORTB &=~(1<<PB2)
 
 ISR (TIM0_COMPA_vect) {
 	
@@ -91,7 +91,6 @@ ISR (TIM0_COMPA_vect) {
 		timer_3_counter_double_click=0;
 		SET_BIT(ISR_flags,TIMER_3_DOUBLE_CLICK);
 	}
-	
 }
 
 void MCU_Setup() {
@@ -127,18 +126,15 @@ void MCU_Setup() {
 }
 
 void Blinking() {
-	
 	for (int i=5; i>=0; i--)
 	{
 		LED_RED_D_TOG;
 		LED_GREEN_B_TOG;
 		_delay_ms(200);
 	}
-
 }
 
 void Bypass_Mode_Checker() {
-	
 	if (BUTTON_PRESSED) {
 		
 	_delay_ms(DEBOUNCE_FAST);
@@ -154,15 +150,11 @@ void Bypass_Mode_Checker() {
 				// Do nothing
 				asm("nop");
 			}
-		
 		}
-		
 	}
-	
 }
 
 void Drive_ON() {
-	
 	MUTE_ON;
 	_delay_ms(MUTE_DELAY);
 	RELAY_ON;
@@ -173,25 +165,21 @@ void Drive_ON() {
 }
 
 void Drive_OFF() {
-	
 	MUTE_ON;
 	_delay_ms(MUTE_DELAY);
 	RELAY_OFF;
 	_delay_ms(RELAY_DELAY);
 	DRIVE_LED_OFF;
 	MUTE_OFF;
-	
 }
 
 void Clear_Timer_2_Long_Press() {
-	
 	// Clear "One Click" long press handling timer
 	ATOMIC_BLOCK(ATOMIC_FORCEON)
 	{
 		timer_2_counter_long_press=0;
 		CLR_BIT(ISR_flags,TIMER_2_LONG_PRESS);
 	}
-	
 }
 
 void Clear_Timer_3_Double_Click()
@@ -202,7 +190,6 @@ void Clear_Timer_3_Double_Click()
 		timer_3_counter_double_click=0;
 		CLR_BIT(ISR_flags,TIMER_3_DOUBLE_CLICK);
 	}
-	
 }
 
 void Flags_Handler() {
@@ -239,7 +226,6 @@ void Flags_Handler() {
 }
 
 void Long_Click_Button_Handler() {
-	
 	if ( !(PINB & (1<<PB1)) && (!CHK_BIT(flags,ONECLICK_MODE_LATCH)) && (CHK_BIT(ISR_flags,TIMER_2_LONG_PRESS)) )
 	{
 		SET_BIT(flags,ONECLICK_MODE_LATCH);
@@ -302,19 +288,16 @@ void Long_Click_Button_Handler() {
 			CLR_BIT(ISR_flags,TIMER_2_LONG_PRESS);
 		}
 	}
-	
 }
 
 void Double_Click_Protection() {
 	
 	// Clear double click handling timer
-	
 	ATOMIC_BLOCK(ATOMIC_FORCEON)
 	{
 		timer_3_counter_double_click=0;
 		CLR_BIT(ISR_flags,TIMER_3_DOUBLE_CLICK);
 	}
-	
 }
 
 void Button_Handler() {
@@ -394,13 +377,9 @@ void Button_Handler() {
 					{
 						TOG_BIT(flags,BOOST);
 					}
-					
 				}
-
 			}
-			
 		}
-	   
 	}
 	
 	// **********************************************
@@ -464,9 +443,7 @@ void Button_Handler() {
 			{
 				CLR_BIT(flags,DRIVE_MODE_LATCH);
 			}
-		
 		}
-		
 	}
 	
 	// Analyzer End
@@ -481,14 +458,11 @@ void Button_Handler() {
 				CLR_BIT(ISR_flags,TIMER_3_DOUBLE_CLICK);
 			}
 		}
-		
 	}
-	
 }
 
 int main(void)
 {
-	
 	MCU_Setup();
 	Bypass_Mode_Checker();
 	sei();
@@ -499,6 +473,4 @@ int main(void)
 		Flags_Handler();
 		Long_Click_Button_Handler();
 	}
-	
 }
-	
