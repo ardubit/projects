@@ -28,14 +28,14 @@ volatile uint16_t timer_Ultra;
 #define TIMER_LONGPRESS_ULTRA	1	// Bit 1
 
 // Bits in the general variable flags
-#define DRIVE_BUTTON_LATCH 		0		// Bit 0
-#define DRIVE_LATCH				1		// Bit 2
-#define BOOST_BUTTON_LATCH		2		// Bit 3
+#define DRIVE_BUTTON_LATCH 	0		// Bit 0
+#define DRIVE_LATCH		1		// Bit 2
+#define BOOST_BUTTON_LATCH	2		// Bit 3
 #define MOMENTARY_MODE_LATCH	3		// Bit 5
-#define DRIVE					4		// Bit 1
-#define BOOST					5		// Bit 4
-#define A						6		// Bit 6
-#define B						7		// Bit 7
+#define DRIVE			4		// Bit 1
+#define BOOST			5		// Bit 4
+#define A			6		// Bit 6
+#define B			7		// Bit 7
 
 #define BYPASS_BUTTON_PRESSED	!(PINB & (1<<PB1))
 #define BOOST_BUTTON_PRESSED	!(PINB & (1<<PB0))
@@ -43,20 +43,20 @@ volatile uint16_t timer_Ultra;
 #define BYPASS_BUTTON_RELEASED	(PINB & (1<<PB1))
 #define BOOST_BUTTON_RELEASED	(PINB & (1<<PB0))
 
-#define MUTE_DELAY			8		// ms
-#define RELAY_DELAY			20		// ms
+#define MUTE_DELAY		8		// ms
+#define RELAY_DELAY		20		// ms
 #define LONG_PRESS_TIME		600		// ms
-#define DEBOUNCE			45		// ms
+#define DEBOUNCE		45		// ms
 #define DEBOUNCE_FAST		25		// ms
 
-#define MUTE_ON				PORTB |= (1<<PB4)
-#define MUTE_OFF			PORTB &=~(1<<PB4)
+#define MUTE_ON			PORTB |= (1<<PB4)
+#define MUTE_OFF		PORTB &=~(1<<PB4)
 
-#define RELAY_ON			PORTB |= (1<<PB3)
-#define RELAY_OFF			PORTB &=~(1<<PB3)
+#define RELAY_ON		PORTB |= (1<<PB3)
+#define RELAY_OFF		PORTB &=~(1<<PB3)
 
-#define BOOST_ON			PORTB |= (1<<PB2)
-#define BOOST_OFF			PORTB &=~(1<<PB2)
+#define BOOST_ON		PORTB |= (1<<PB2)
+#define BOOST_OFF		PORTB &=~(1<<PB2)
 
 void MCU_Setup();
 ISR (TIM0_COMPA_vect);
@@ -73,7 +73,6 @@ void Clear_Timer_Drive();
 void Clear_Timer_Ultra();
 
 void MCU_Setup() {
-	
 	// PB0 - Boost Button (Ultra)
 	// PB1 - Bypass Button
 	// PB2 - Ultra, LED Boost
@@ -104,7 +103,6 @@ void MCU_Setup() {
 	
 	// Reset timer T0 flags
 	TIFR0 = 0;
-	
 }
 
 ISR (TIM0_COMPA_vect) {
@@ -124,7 +122,6 @@ ISR (TIM0_COMPA_vect) {
 		timer_Ultra=0;
 		SET_BIT(ISR_flags,TIMER_LONGPRESS_ULTRA);
 	}
-	
 }
 
 void Drive_ON() {	
@@ -181,7 +178,6 @@ void Flags_Handler() {
 	{
 		Boost_OFF();
 	}
-	
 }
 
 void Drive_Button_Handler() {
@@ -202,7 +198,6 @@ void Drive_Button_Handler() {
 	{
 		CLR_BIT(flags,DRIVE_BUTTON_LATCH);
 	}
-	
 }
 
 void Boost_Button_Handler() {
@@ -223,7 +218,6 @@ void Boost_Button_Handler() {
 	{
 		CLR_BIT(flags,BOOST_BUTTON_LATCH);
 	}
-	
 }
 
 void Drive_Long_Click_Button_Handler() {
@@ -237,7 +231,6 @@ void Drive_Long_Click_Button_Handler() {
 		Boost_Button_Handler();// Do nothing
 		asm("nop");	
 		}
-		
 	}
 	
 	// Button release
@@ -267,7 +260,6 @@ void Ultra_Long_Click_Button_Handler() {
 			Drive_Button_Handler();
 			asm("nop");
 		}
-		
 	}
 	
 	// Button release
@@ -293,7 +285,6 @@ void Clear_Timer_Drive() {
 		timer_Drive = 0;
 		CLR_BIT(ISR_flags,TIMER_LONGPRESS_DRIVE);
 	}
-	
 }
 
 void Clear_Timer_Ultra() {
@@ -304,19 +295,17 @@ void Clear_Timer_Ultra() {
 		timer_Ultra = 0;
 		CLR_BIT(ISR_flags,TIMER_LONGPRESS_ULTRA);
 	}
-	
 }
 
-int main(void)
-{
-	MCU_Setup();
-	sei();
+int main(void) {
+MCU_Setup();
+sei();
     while(1)
     {
         Drive_Button_Handler();
-		Boost_Button_Handler();
+	Boost_Button_Handler();
         Flags_Handler();
         Drive_Long_Click_Button_Handler();
-		Ultra_Long_Click_Button_Handler();
+	Ultra_Long_Click_Button_Handler();
     }
 }
