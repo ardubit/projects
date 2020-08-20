@@ -19,7 +19,6 @@
 int latch;
 
 void setup () {
-	
 	// *** Port Setup ***
 	
 	// PB1 - Button
@@ -57,18 +56,14 @@ void setup () {
 	
 	// Reset timer T0 flags.
 	TIFR0 = 0;
-
 }
 
 ISR (INT0_vect) {
-	
 	//Disable external interrupts (only need one to wake up)
 	//GIMSK = 0;
-	
 }
 
 void go_to_sleep_mode () {
-	
 	//MCUCR |= (1 << SM1);
 	//MCUCR |= (1 << SE);
 	//asm("sleep");
@@ -77,45 +72,36 @@ void go_to_sleep_mode () {
 	sei();
 	sleep_cpu();
 	sleep_disable(); 
-	
 }
 
 void fade_out () {
-
 	unsigned int i;
-
 	for (i=0; i<255; i++)
 	{
 		OCR0A=i;
 		_delay_ms(10);
 	}
-
 }
 
 void fade_in () {
-
 	unsigned int i;
-
 	for (i=255; i>0; i--)
 	{
 		OCR0A=i;
 		_delay_ms(10);
 	}
-
 }
 
 int main(void)
 {
-
 	setup();
 	sei();
 	
     while(1)
     {
-        
 		// Please sleep now
 		go_to_sleep_mode();
-			
+	    
 		if (!(PINB & (1 << PB1)) && (latch == 0))
 		{
 			cli();
@@ -132,7 +118,5 @@ int main(void)
 		{
 			latch=0;
 		}
-		
 	}
-
 }
