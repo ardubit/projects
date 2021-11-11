@@ -16,7 +16,7 @@
 uint8_t flags;
 volatile uint8_t ISR_flags;
 
-volatile uint16_t timer_2_counter_long_press;	// Long press handling timer
+volatile uint16_t timer_2_counter_long_press;		// Long press handling timer
 volatile uint16_t timer_3_counter_double_click; // Double click handling timer
 
 uint8_t click_counter;
@@ -27,28 +27,28 @@ uint8_t click_counter;
 #define TOG_BIT(p, m) ((p) ^= (1 << (m)))
 
 // Bits in the ISR_flags
-#define TIMER_2_LONG_PRESS 1   // Bit 1
+#define TIMER_2_LONG_PRESS 1	 // Bit 1
 #define TIMER_3_DOUBLE_CLICK 2 // Bit 1
 
 // Bits in the general variable flags
-#define BUTTON_LATCH 0		  // Bit 0
-#define DRIVE_LATCH 1		  // Bit 2
+#define BUTTON_LATCH 0				// Bit 0
+#define DRIVE_LATCH 1					// Bit 2
 #define ONECLICK_MODE_LATCH 2 // Bit 3
-#define DRIVE_MODE_LATCH 3	  // Bit 5
-#define DRIVE 4				  // Bit 1
-#define BOOST 5				  // Bit 4
-#define CLICK_TO_BOOST 6	  // Bit 6
-#define TIP_MODE 7			  // Bit 7
+#define DRIVE_MODE_LATCH 3		// Bit 5
+#define DRIVE 4								// Bit 1
+#define BOOST 5								// Bit 4
+#define CLICK_TO_BOOST 6			// Bit 6
+#define TIP_MODE 7						// Bit 7
 
 #define BUTTON_PRESSED !(PINB & (1 << PB1))
 
 // Click - 160 ms
-#define LONG_PRESS_TIME 600	  // ms
+#define LONG_PRESS_TIME 600		// ms
 #define DOUBLE_CLICK_TIME 400 // ms
-#define DEBOUNCE 45			  // ms
-#define DEBOUNCE_FAST 25	  // ms
-#define MUTE_DELAY 8		  // ms
-#define RELAY_DELAY 20		  // ms
+#define DEBOUNCE 45						// ms
+#define DEBOUNCE_FAST 25			// ms
+#define MUTE_DELAY 8					// ms
+#define RELAY_DELAY 20				// ms
 
 #define LED_GREEN_B_TOG PORTB ^= (1 << PB2)
 #define LED_GREEN_B_ON PORTB |= (1 << PB2)

@@ -27,14 +27,14 @@ volatile uint16_t timer_Ultra;
 #define TIMER_LONGPRESS_ULTRA 1 // Bit 1
 
 // Bits in the general variable flags
-#define DRIVE_BUTTON_LATCH 0   // Bit 0
-#define DRIVE_LATCH 1		   // Bit 2
-#define BOOST_BUTTON_LATCH 2   // Bit 3
+#define DRIVE_BUTTON_LATCH 0	 // Bit 0
+#define DRIVE_LATCH 1					 // Bit 2
+#define BOOST_BUTTON_LATCH 2	 // Bit 3
 #define MOMENTARY_MODE_LATCH 3 // Bit 5
-#define DRIVE 4				   // Bit 1
-#define BOOST 5				   // Bit 4
-#define A 6					   // Bit 6
-#define B 7					   // Bit 7
+#define DRIVE 4								 // Bit 1
+#define BOOST 5								 // Bit 4
+#define A 6										 // Bit 6
+#define B 7										 // Bit 7
 
 #define BYPASS_BUTTON_PRESSED !(PINB & (1 << PB1))
 #define BOOST_BUTTON_PRESSED !(PINB & (1 << PB0))
@@ -42,11 +42,11 @@ volatile uint16_t timer_Ultra;
 #define BYPASS_BUTTON_RELEASED (PINB & (1 << PB1))
 #define BOOST_BUTTON_RELEASED (PINB & (1 << PB0))
 
-#define MUTE_DELAY 8		// ms
-#define RELAY_DELAY 20		// ms
+#define MUTE_DELAY 8				// ms
+#define RELAY_DELAY 20			// ms
 #define LONG_PRESS_TIME 600 // ms
-#define DEBOUNCE 45			// ms
-#define DEBOUNCE_FAST 25	// ms
+#define DEBOUNCE 45					// ms
+#define DEBOUNCE_FAST 25		// ms
 
 #define MUTE_ON PORTB |= (1 << PB4)
 #define MUTE_OFF PORTB &= ~(1 << PB4)
